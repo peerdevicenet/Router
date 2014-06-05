@@ -3,11 +3,11 @@ Router: A Runtime For Ad-Hoc Peer-Peer Communication Among Android Devices
 
 Router features:
 
-        * handles network detection, peer discovery, peer device connection and group communication.
-	* provides 3 layers of APIs(idl/messenger/intents) to access the runtime functions as documented in user_guide.
-	* run as a service in a background process.
-	* a pure generic kernel without enforcing any kind of connection strategy or GUI.
-	* packaged as an android library project, which you can add to your application project's dependencies to gain all functionalities.
+       * handles network detection, peer discovery, peer device connection and group communication.
+       * provides 3 layers of APIs(idl/messenger/intents) to access the runtime functions as documented in user_guide.
+       * run as a service in a background process.
+       * a pure generic kernel without enforcing any kind of connection strategy or GUI.
+       * packaged as an android library project, which you can add to your application project's dependencies to gain all functionalities.
         
 
 Two kinds of Apps built using Router:
