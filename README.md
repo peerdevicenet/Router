@@ -1,5 +1,5 @@
-Router: A Runtime For Ad-Hoc Peer-Peer Communication Among Android Devices
-==========================================================================
+Router: A Runtime For Peer-Peer Communication Among Android Devices
+===================================================================
 
 Router features:
 
