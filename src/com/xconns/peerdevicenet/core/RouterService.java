@@ -269,8 +269,8 @@ public class RouterService extends Service implements CoreAPI {
 				System.currentTimeMillis());
 		Intent notificationIntent = new Intent(
 				Router.ACTION_CONNECTOR);
-		// notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-		// Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                                            Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		notification.setLatestEventInfo(this,
