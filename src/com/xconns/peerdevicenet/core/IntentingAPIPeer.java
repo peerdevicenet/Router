@@ -70,8 +70,19 @@ public class IntentingAPIPeer implements Peer {
 				router.stopPeerSearch(sessionId);
 				break;
 			case MsgId.ACCEPT_CONNECTION:
+				data = msg.getData();
+				name = data.getString(Router.PEER_NAME);
+				addr = data.getString(Router.PEER_ADDR);
+				port = data.getString(Router.PEER_PORT);
+				router.acceptConnection(sessionId, new DeviceInfo(name, addr, port));
 				break;
 			case MsgId.DENY_CONNECTION:
+				data = msg.getData();
+				name = data.getString(Router.PEER_NAME);
+				addr = data.getString(Router.PEER_ADDR);
+				port = data.getString(Router.PEER_PORT);
+				int denyCode = data.getInt(Router.CONN_DENY_CODE);
+				router.denyConnection(sessionId, new DeviceInfo(name, addr, port), denyCode);
 				break;
 			case MsgId.CONNECT:
 				data = msg.getData();

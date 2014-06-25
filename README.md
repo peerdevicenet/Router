@@ -7,8 +7,12 @@ Router features:
        * provides 3 layers of APIs(idl/messenger/intents) to access the runtime functions as documented in user_guide.
        * run as a service in a background process.
        * a pure generic kernel without enforcing any kind of connection strategy or GUI.
-       * packaged as an android library project, which you can add to your application project's dependencies to gain all functionalities.
-        
+
+Router can be used in 2 ways:
+
+       * directly embed into your app as an android library project and access its APIs.
+
+       * remotely access an external router's APIs which is embeded in other connector/manager app.
 
 Two kinds of Apps built using Router:
 
@@ -26,11 +30,13 @@ Sample Connectors:
                       * use Wifi network thru external wireless router
                       * use WifiDirect network setup among a group of WifiDirect enabled devices
                       * use AIDL api to perform network detection, peer discovery and device connection.
+                      * remotely invoke external router's APIs embedded inside other app such as Connector_wifi_intent.
 
       * Connector_wifi_intent:
                       * use Wifi network thru external wireless router
                       * use WifiDirect network setup among a group of WifiDirect enabled devices
                       * use intenting api to perform network detection, peer discovery and device connection.
+                      * directly embed a router service by including router as a library project.
 
 Sample Connected Apps:
 
