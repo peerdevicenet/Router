@@ -60,7 +60,7 @@ public class IntentingAPIPeer implements Peer {
 			switch (msg.what) {
 			case MsgId.START_SEARCH:
 				Bundle data = msg.getData();
-				int timeout = data.getInt(Router.TIMEOUT);
+				int timeout = data.getInt(Router.SEARCH_TIMEOUT);
 				String name = data.getString(Router.PEER_NAME);
 				String addr = data.getString(Router.PEER_ADDR);
 				String port = data.getString(Router.PEER_PORT);
@@ -90,7 +90,7 @@ public class IntentingAPIPeer implements Peer {
 				addr = data.getString(Router.PEER_ADDR);
 				port = data.getString(Router.PEER_PORT);
 				byte[] token = data.getByteArray(Router.AUTHENTICATION_TOKEN);
-				timeout = data.getInt(Router.TIMEOUT);
+				timeout = data.getInt(Router.CONNECT_TIMEOUT);
 				router.connectPeer(sessionId, new DeviceInfo(name, addr, port), token, timeout);
 				break;
 			case MsgId.DISCONNECT:

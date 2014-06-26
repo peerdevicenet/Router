@@ -63,7 +63,7 @@ public class MessengerAPIPeer implements Peer {
 				String name = data.getString(Router.PEER_NAME);
 				String addr = data.getString(Router.PEER_ADDR);
 				String port = data.getString(Router.PEER_PORT);
-				int timeout = data.getInt(Router.TIMEOUT);
+				int timeout = data.getInt(Router.SEARCH_TIMEOUT);
 				router.startPeerSearch(sessionId, new DeviceInfo(name, addr, port), timeout);
 				break;
 			case MsgId.STOP_SEARCH:
@@ -90,7 +90,7 @@ public class MessengerAPIPeer implements Peer {
 				addr = data.getString(Router.PEER_ADDR);
 				port = data.getString(Router.PEER_PORT);
 				byte[] token = data.getByteArray(Router.AUTHENTICATION_TOKEN);
-				timeout = data.getInt(Router.TIMEOUT);
+				timeout = data.getInt(Router.CONNECT_TIMEOUT);
 				router.connectPeer(sessionId, new DeviceInfo(name, addr, port),
 						token, timeout);
 				break;

@@ -36,7 +36,7 @@ public class DiscoveryMemberThread extends Thread {
 	public static final String TAG = "DiscoveryMemberThread";
 
 	final int BUFFER_SIZE = 1024;
-	int scanTimeout = 15000; // scan timeout - default 10 seonds
+	int scanTimeout = 15000; // scan timeout - default 15 seonds
 	int connTimeout = 5000; // conn timeout - default 5 seonds
 
 	RouterService context = null;
@@ -208,7 +208,7 @@ public class DiscoveryMemberThread extends Thread {
 								@Override
 								public void run() {
 									Log.d(TAG,
-											"10 sec passed, wifi direct GM stop scanning");
+											scanTimeout+" millisecond passed, wifi direct GM stop scanning");
 									close();
 								}
 							}, scanTimeout, TimeUnit.MILLISECONDS);
