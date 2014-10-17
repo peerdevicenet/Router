@@ -96,8 +96,6 @@ public class WifiApManager {
      * Return whether Wi-Fi AP is enabled or disabled.
      * @return {@code true} if Wi-Fi AP is enabled
      * @see #getWifiApState()
-     *
-     * @hide Dont open yet
      */
     public boolean isWifiApEnabled() {
         return getWifiApState() == WIFI_AP_STATE_ENABLED;
@@ -105,7 +103,7 @@ public class WifiApManager {
     
     /**
      * Gets the Wi-Fi AP Configuration.
-     * @return AP details in {@link WifiConfiguration}
+     * @return AP details in WifiConfiguration
      */
     public WifiConfiguration getWifiApConfiguration() {
 		try {

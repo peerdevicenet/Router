@@ -39,6 +39,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import static android.os.Build.VERSION.*;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
@@ -55,7 +56,7 @@ public class Utils {
 	// Debugging
 	private static final String TAG = "Utils";
 	
-	public final static int ANDROID_VERSION = Integer.valueOf(android.os.Build.VERSION.SDK);
+	public final static int ANDROID_VERSION = SDK_INT;
 
 	public static final String P2P_INTF = "p2p";
 	public static final String WLAN_INTF = "wlan";
@@ -79,7 +80,7 @@ public class Utils {
 	
 	//get ip address based on interface name
 	public static IntfAddr getIntfAddrByType(int netType) {
-		String intfName = null;
+		String intfName;
 		if (NetInfo.WiFi == netType) {
 			intfName = WLAN_INTF;
 		}

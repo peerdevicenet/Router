@@ -40,8 +40,8 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 	 *            WifiP2pManager system service
 	 * @param channel
 	 *            Wifi p2p channel
-	 * @param activity
-	 *            activity associated with the receiver
+	 * @param wifiD
+	 *            transport associated with the receiver
 	 */
 	@SuppressLint("NewApi")
 	public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,

@@ -51,7 +51,6 @@ public class DiscoveryMulticastThread extends Thread {
 
 	private NetInfo netInfo = null;
 	private DeviceInfo mDeviceInfo = null;
-	//private HashMap<String, DeviceInfo> foundDevices = new HashMap<String, DeviceInfo>();
 
 	private InetAddress groupAddress;
 	private MulticastSocket bSocket;
@@ -154,8 +153,8 @@ public class DiscoveryMulticastThread extends Thread {
 						int count = -1; //run forever;
 						if (timeout > 0) count = timeout / 1000;
 						scanTask = new MyTimerTask(count);
-						try {
-						timerTask = context.timer.schedule(scanTask, 1000L,
+						try {//context.timer.scheduleAtFixedRate(command, initialDelay, period, unit)
+						timerTask = context.timer.scheduleAtFixedRate(scanTask, 1000L, 1000L,
 								TimeUnit.MILLISECONDS);
 						}
 						catch(RejectedExecutionException re) {
@@ -200,16 +199,9 @@ public class DiscoveryMulticastThread extends Thread {
 									Log.d(TAG, "recv multicast from "
 											+ dev.addr);
 									if (!mDeviceInfo.addr.equals(dev.addr)) {
-										/*
-										if (foundDevices.size() > 0
-												&& foundDevices
-														.containsKey(dev.addr))
-											continue;
-											*/
 										Log.d(TAG, "found new device: "
 												+ dev.name + " : " + dev.addr
 												+ " : " + dev.port);
-										//foundDevices.put(dev.addr, dev);
 										handler.onSearchFoundDevice(dev, useSSL);
 									}
 								} else {

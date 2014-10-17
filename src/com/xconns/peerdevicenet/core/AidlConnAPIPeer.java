@@ -193,7 +193,7 @@ public class AidlConnAPIPeer implements Peer {
 		@Override
 		public void onNetworkDisconnected(NetInfo net) {
 			try {
-				Log.d(TAG, "onNetworkDisc�onnected called");
+				Log.d(TAG, "onNetworkDisconnected called");
 				handler.onNetworkDisconnected(net);
 			} catch (RemoteException e) {
 				Log.e(TAG,
