@@ -6,18 +6,33 @@ Router features:
        * supports network detection (Wifi / Wifi Direct / Mobile hotspot)
        * supports peer discovery, peer device connection
        * supports group communication.
-       * provides 3 layers of APIs(idl/messenger/intents) to access the runtime functions as documented in user_guide.
+       * provides 3 layers of APIs(idl/messenger/intents) to access the runtime functions as documented in http://peerdevicenet.github.io.
        * run as a service in a background process.
        * a pure generic kernel without enforcing any kind of connection strategy or GUI.
 
-Router is published as two jar/aar files at Maven Central (http://search.maven.org/#search|ga|1|peerdevicenet):
+Router is published as two jar/aar files at Maven Central. You can download the latest jars from http://search.maven.org/#search|ga|1|peerdevicenet, or grab via Maven or gradle as following:
 
        * peerdevicenet-api.jar:
-                             * provide client api to access Router runtime.
-                             * import as 'com.xconns.peerdevicenet:peerdevicenet-api:1.1.4'
+                * provide client api to access Router runtime.
+                * Maven:
+                        * <dependency>
+                                * <groupId>com.xconns.peerdevicenet</groupId>
+                                * <artifactId>peerdevicenet-api</artifactId>
+                                * <version>1.1.4</version>
+                        * </dependency>
+                * gradle:
+                        * 'com.xconns.peerdevicenet:peerdevicenet-api:1.1.4'
        * peerdevicenet-router.aar:
-                             * allow you embedded a Router instance into your app
-                             * import as 'com.xconns.peerdevicenet:peerdevicenet-router:1.1.4'
+                * allow you embedded a Router instance into your app
+                * Maven:
+                        * <dependency>
+                                * <groupId>com.xconns.peerdevicenet</groupId>
+                                * <artifactId>peerdevicenet-router</artifactId>
+                                * <version>1.1.4</version>
+                                * <packaging>aar</packaging>
+                        * </dependency>
+                * gradle:
+                        * 'com.xconns.peerdevicenet:peerdevicenet-router:1.1.4'
 
 Router can be used in 2 ways:
 
@@ -42,7 +57,7 @@ Two kinds of Apps built using Router:
 
 Sample Connectors:
 
-      * Connector_wifi_intent:
+       * Connector_wifi_intent:
                       * use Wifi network thru external wireless router
                       * use WifiDirect network setup among a group of WifiDirect enabled devices
                       * use intenting api to perform network detection, peer discovery and device connection.
@@ -54,7 +69,7 @@ Sample Connectors:
                       * use AIDL api to perform network detection, peer discovery and device connection.
                       * use router's APIs to access a Router instance embedded inside other app such as Connector_wifi_intent (so need to install Connector_wifi_intent before using this connector).
 
-      * Connector_wifidirect_hotspot:
+       * Connector_wifidirect_hotspot:
                       * use WifiP2pManager to create a p2p group as a hotspot
                       * connect legacy wifi or wifi direct enabled devices thru this hotspot
                       * use aidl api to perform network detection, peer discovery and device connection.
@@ -65,7 +80,7 @@ Sample Connected Apps:
 
        * Chat:
                      * use any of sample connectors to connect peer devices.
-                     * do group chat among connected devices
+                     * do group chat among connected devices.
 
        * Rotate:
                      * use any of sample connectors to connect peer devices.
