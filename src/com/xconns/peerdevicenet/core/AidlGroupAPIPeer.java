@@ -113,7 +113,7 @@ public class AidlGroupAPIPeer implements Peer {
 
 		public void onReceive(DeviceInfo src, Bundle msg) {
 			try {
-				handler.onReceive(src, msg.getByteArray(Router.MSG_DATA));
+				handler.onReceive(src, msg.getByteArray(Router.MsgKey.MSG_DATA));
 			} catch (RemoteException e) {
 				Log.e(TAG,
 						"failed to call IRouterGroupHandler::onReceive(): "
@@ -150,11 +150,11 @@ public class AidlGroupAPIPeer implements Peer {
 
 		public void send(String groupId, DeviceInfo dest, byte[] data) throws RemoteException {
 			Bundle msg = new Bundle();
-			msg.putByteArray(Router.MSG_DATA, data);
+			msg.putByteArray(Router.MsgKey.MSG_DATA, data);
 			if (groupId != null)
-				msg.putString(Router.GROUP_ID, groupId);
+				msg.putString(Router.MsgKey.GROUP_ID, groupId);
 			if (dest != null)
-				msg.putString(Router.PEER_ADDR, dest.addr);
+				msg.putString(Router.MsgKey.PEER_ADDR, dest.addr);
 			router.sendMsg(groupId, dest, msg);
 		}
 

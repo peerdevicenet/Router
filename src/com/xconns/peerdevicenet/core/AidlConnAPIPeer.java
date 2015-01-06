@@ -246,7 +246,6 @@ public class AidlConnAPIPeer implements Peer {
 		public void connect(int sessionId, DeviceInfo device, byte[] token, int timeout) throws RemoteException {
 			router.connectPeer(sessionId, device, token, timeout);
 		}
-
 		public void disconnect(int sessionId, DeviceInfo device) throws RemoteException {
 			router.disconnectPeer(sessionId, device);
 		}

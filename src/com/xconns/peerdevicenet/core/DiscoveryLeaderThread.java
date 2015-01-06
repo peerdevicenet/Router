@@ -35,6 +35,7 @@ import android.util.Pair;
 import com.xconns.peerdevicenet.DeviceInfo;
 import com.xconns.peerdevicenet.NetInfo;
 import com.xconns.peerdevicenet.utils.PlainSocketFactory;
+import com.xconns.peerdevicenet.utils.RouterConfig;
 import com.xconns.peerdevicenet.utils.Utils;
 
 public class DiscoveryLeaderThread extends Thread {
@@ -42,8 +43,8 @@ public class DiscoveryLeaderThread extends Thread {
 
 	public static final int DISCOVERY_RENDEZVOUS_PORT = 7385;
 	final int BUFFER_SIZE = 1024;
-	volatile int scanTimeout = 15000; // scan timeout - default 15 seonds
-	int connTimeout = 5000; // conn timeout - default 5 seonds
+	volatile int scanTimeout = RouterConfig.DEF_SEARCH_TIMEOUT * 1000; // scan timeout - default 30 seonds
+	int connTimeout = RouterConfig.DEF_CONN_TIMEOUT * 1000; // conn timeout - default 5 seonds
 
 	private RouterService context = null;
 	private NetInfo netInfo = null;
@@ -139,7 +140,7 @@ public class DiscoveryLeaderThread extends Thread {
 		}
 		Log.d(TAG, "start discovery leader scan");
 		
-		if (ownScanTimeout < 0) {
+		if (ownScanTimeout == 0) { //scan forever, has to be stopped
 			//running inside connect by QR code so change peer conn timeout
 			scanTimeout = ownScanTimeout;
 		}
@@ -196,7 +197,7 @@ public class DiscoveryLeaderThread extends Thread {
 				handler = null;
 			}
 		}
-		if (scanTimeout < 0) { //scan by QR code
+		if (scanTimeout == 0) { //scan forever, there is no timeout setup to terminate connections. so has to do it here.
 			for (GMConnection conn : foundPeers.values()) {
 				conn.closeConn();
 			}

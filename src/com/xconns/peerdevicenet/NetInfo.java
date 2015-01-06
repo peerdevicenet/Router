@@ -19,6 +19,10 @@ package com.xconns.peerdevicenet;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * Info of the network connecting peer devices: its type (wifi, hotspot, ...),
+ * name (SSID,...), encrypt password, interface name, support multicast or not, etc.
+ */
 public class NetInfo implements Parcelable {
 	//network type names
 	public final static int NoNet = -1;
@@ -69,15 +73,41 @@ public class NetInfo implements Parcelable {
 		return null;
 	}
 	
-	//net info
+    /**
+     * network type (wifi, direct, hotspot, etc.)
+     */
 	public int type = NoNet;
+    /**
+     * network name (SSID, etc.)
+     */
 	public String name = null;
+    /**
+     * encrypt type (WEP, WPA, etc.)
+     */
 	public int encrypt = NoPass;
+    /**
+     * encrypt passwd
+     */
 	public String pass = null;
+    /**
+     * is the network hidden or explicit.
+     */
 	public boolean hidden = false;
+    /**
+     * general network info.
+     */
 	public byte[] info = null;
+    /**
+     * local interface name for this device.
+     */
 	public String intfName = null;  //local interface name for this net
+    /**
+     * device's addr at this network.
+     */
 	public String addr = null;  //addr of this host in this net
+    /**
+     * does this network support multicast or not.
+     */
 	public boolean mcast = false;
 	
 	public NetInfo(int t, String n, int enc, String p, boolean h, byte[] i, String in, String a, boolean m) {

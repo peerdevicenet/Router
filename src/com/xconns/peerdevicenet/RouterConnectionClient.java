@@ -31,37 +31,185 @@ import android.util.Log;
 import com.xconns.peerdevicenet.IRouterConnectionHandler;
 import com.xconns.peerdevicenet.IRouterConnectionService;
 
+/**
+ * RouterConnectionClient wrapper class is the preferred way to access the asynchronous one-way AIDL api of Router Connection Service.
+ * It enables two-way asynchronous messaging between clients and ConnectionService:
+ * <ul>
+ * <li> bind to (later unbind) Router ConnectionService to start a new session and hold session id.
+ * <li> expose api methods which invoke ConnectionService one-way asynchronous messaging api
+ *    as defined by IRouterConnectionService.aidl; perform operations such as
+ *    retrieving network info, activating network, connecting or disconnecting device.
+ * <li> register a ConnectionHandler which exposes client side one-way asynchronous messaging api to allow ConnectionService
+ *    call back to notify events such as network detachment, device connection and disconnection.
+ * <li> buffering api calls when the binding with ConnectionService is not ready,
+ *    and resend buffered calls when the binding is ready.
+ * </ul>
+ * <p>
+ * A sample scenario of using RouterConnectionClient to interact with ConnectionService is as following:
+ * <ol>
+ * <li> Initialization at onCreate() or onResume():
+ <pre>
+ //first bind to Router ConnectionService, and register ConnectionHandler.
+ connClient = new RouterConnectionClient(this, connHandler);
+ connClient.bindService();
+ </pre>
+ * <li> call service async api to perform operations:
+ <pre>
+ connClient.connect(device, securityToken.getBytes(), connTimeout);
+ </pre>
+ * <li> cleanup at onPause() or onDestroy():
+ <pre>
+ connClient.unbindService();
+ </pre>
+ * </ol>
+ * <p>
+ * For detailed tutorial on how to use RouterConnectionClient to talk to ConnectionService
+ * and set up peer device connections, please check out <a href="http://github.com/peerdevicenet/sample_Connector_wifi_aidl">github sample project</a>.
+ */
 public class RouterConnectionClient {
 	// Debugging
 	private static final String TAG = "RouterConnectionClient";
 
-	// from IConnectionHandler
+	/**
+	 * ConnectionHandler exposes client side async messaging one-way AIDL api to allow ConnectionService call back to
+     * notify events such as network attachment and detachment, device connection and disconnection. It implements IConnectionHandler.aidl.
+	 */
 	public interface ConnectionHandler {
+        /**
+         * Notify clients about two kinds of errors:
+         * <ul>
+         * <li> errors happening at server processing.
+         * <li> errors happening at client invoking ConnectionService api.
+         *</ul>
+         * @param errInfo the detailed error message
+         */
 		void onError(String errInfo);
 
+        /**
+         * Pass to clients info about currently attached networks detected by ConnectionService.
+         * This is the response to getNetworks() api call.
+         * @param nets info about current networks to which the device is attached.
+         */
 		void onGetNetworks(NetInfo[] nets);
+
+        /**
+         * Pass to clients info about the network used to connect to peer devices.
+         * This is the response to getActiveNetwork() call.
+         *
+         * @param net info about the network actively used to communicate with peer devices.
+         */
 		void onGetActiveNetwork(NetInfo net);
+
+        /**
+         * Notify clients that ConnectionService detects a new network.
+         *
+         * @param net info about a network this device is newly attached.
+         */
 		void onNetworkConnected(NetInfo net);
+
+        /**
+         * Notify clients that a network is disconnected.
+         *
+         * @param net info about disconnected network.
+         */
 		void onNetworkDisconnected(NetInfo net);
+
+        /**
+         * Pass to clients info about network activated.
+         * This is the response to activateNetwork() api call.
+         *
+         * @param net info of the network activated.
+         */
 		void onNetworkActivated(NetInfo net);
-		
+
+        /**
+         * Notify client a search session started; It is the response to startSearch() api call.
+         *
+         * @param groupLeader info of leader device which may run hotspot or own wifi
+         *                    direct group. It is the enabler for a group of devices
+         *                    to discover each other.
+         */
 		void onSearchStart(DeviceInfo groupLeader);
+
+        /**
+         * Notify clients in a search session a device is found.
+         *
+         * @param device info of found device (name, address, port number).
+         * @param useSSL does connection to this device use TLS/SSL or not.
+         */
 		void onSearchFoundDevice(DeviceInfo device, boolean useSSL);
+
+        /**
+         * Notify clients current active search session completes, either because clients
+         * called stopSearch() or search session timeout.
+         */
 		void onSearchComplete();
-		
+
+        /**
+         * Notify client a peer device is trying to connect to this device.
+         *
+         * @param device peer device info which try to connect
+         * @param token binary data passed by peer device as authentication token.
+         */
 		void onConnecting(DeviceInfo device, byte[] token);
+
+        /**
+         * Notify client its attempt to connect to peer device failed.
+         *
+         * @param device target peer device the client try to connect
+         * @param rejectCode reason of connection failure.
+         */
 		void onConnectionFailed(DeviceInfo device, int rejectCode);
-		
+
+        /**
+         * Notify client that a peer device successfully connected to this device;
+         * either because the client accept peer connection request or peer accept the client's
+         * connection request.
+         *
+         * @param peerInfo info of connected device.
+         */
 		void onConnected(DeviceInfo peerInfo);
 
+        /**
+         * Notify client a peer device disconnected;
+         * either because the client or its peer called disconnect() api; or
+         * because network failed.
+         *
+         * @param peerInfo info of disconnected device.
+         */
 		void onDisconnected(DeviceInfo peerInfo);
 
+        /**
+         * Notify client its call to setConnectionInfo() api call succeed and
+         * connection related settings (device name, use SSL, connection timeout, etc.)
+         * have been updated successfully at Connection Service.
+         */
 		void onSetConnectionInfo();
-		
+
+        /**
+         * Reply to client connection related settings currently active at Connection Service;
+         * This is the response to getConnectionInfo() api call.
+         *
+         * @param devName name of this device
+         * @param useSSL does this device use TLS/SSL connect to peer devices or not.
+         * @param liveTime the period between successive verifications of liveness of peer device.
+         * @param connTime peer device connection timeout.
+         * @param searchTime search session timeout.
+         */
 		void onGetConnectionInfo(String devName, boolean useSSL, int liveTime, int connTime, int searchTime);
 
+        /**
+         * Reply to client info about this device; This is the response to getDeviceInfo() api call.
+         *
+         * @param device info of this device (name, address, port).
+         */
 		void onGetDeviceInfo(DeviceInfo device);
 
+        /**
+         * Reply to client info about peer devices connected to this device.
+         *
+         * @param devices peer devices currently connected.
+         */
 		void onGetPeerDevices(DeviceInfo[] devices);
 	}
 
@@ -71,6 +219,12 @@ public class RouterConnectionClient {
 	private ConnectionHandler registeredHandler = null;
 	private List<Message> sentMsgBuf = new ArrayList<Message>();
 
+    /**
+     * RouterConnectionClient constructor; register a ConnectionHandler to expose client side one-way asynchronous messaging api for ConnectionService to call back.
+     *
+     * @param c context (activity or service) in which to bind to Connection Service.
+     * @param h register a ConnectionHandler to allow ConnectionService call back.
+     */
 	public RouterConnectionClient(Context c, ConnectionHandler h) {
 		context = c;
 		registeredHandler = h;
@@ -180,11 +334,17 @@ public class RouterConnectionClient {
 		}
 	};
 
+    /**
+     * bind to Router Connection Service.
+     */
 	public void bindService() {
 		Intent intent = new Intent("com.xconns.peerdevicenet.ConnectionService");
 		context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 	}
 
+    /**
+     * unbind from Router Connection Service.
+     */
 	public void unbindService() {
 		Log.d(TAG, "unbindService");
 		if (mConnService != null) {
@@ -270,12 +430,22 @@ public class RouterConnectionClient {
 					Log.e(TAG,
 							"failed to call RouterConnectionService: "
 									+ re.getMessage());
+                    registeredHandler.onError(re.getMessage());
 				}
 			}
 			sentMsgBuf.clear();
 		}
 	}
-	
+
+    /**
+     * start a new search session to find peer devices.
+     *
+     * @param groupLeader info of leader device which may run hotspot or own wifi
+     *                    direct group. It is the enabler for a group of devices
+     *                    to discover each other.
+     * @param timeout search session timeout in seconds; if set to 0, search forever until
+     *                stopped explicitly; if set to negative, use preset search timeout (default 30 seconds).
+     */
 	public void startPeerSearch(DeviceInfo groupLeader, int timeout) {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -289,9 +459,13 @@ public class RouterConnectionClient {
 			mConnService.startPeerSearch(sessionId, groupLeader, timeout);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to startPeerSearch: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}		
 	}
-	
+
+    /**
+     * stop current search session.
+     */
 	public void stopPeerSearch() {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -303,9 +477,15 @@ public class RouterConnectionClient {
 			mConnService.stopPeerSearch(sessionId);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to stopPeerSearch: " + e.getMessage());
-		}		
+            registeredHandler.onError(e.getMessage());
+		}
 	}
 
+    /**
+     * accept the connection request from a peer device.
+     *
+     * @param peer info of connecting peer device.
+     */
 	public void acceptConnection(DeviceInfo peer) {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -318,9 +498,16 @@ public class RouterConnectionClient {
 			mConnService.acceptConnection(sessionId, peer);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to accept_connect: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
-	
+
+    /**
+     * deny the connection request from a peer device and tell the reason.
+     *
+     * @param peer info of connecting peer device.
+     * @param rejectCode reason of denial.
+     */
 	public void denyConnection(DeviceInfo peer, int rejectCode) {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -334,10 +521,18 @@ public class RouterConnectionClient {
 			mConnService.denyConnection(sessionId, peer, rejectCode);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to accept_connect: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
 
-	// IRouterConnectionService API
+    /**
+     * send connection request to peer device.
+     *
+     * @param peerInfo info of peer device.
+     * @param token binary data for authentication.
+     * @param timeout connection timeout in seconds; if set to 0, wait forever;
+     *                if set to negative, use preset value (default to 5 seconds).
+     */
 	public void connect(DeviceInfo peerInfo, byte[] token, int timeout) {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -351,9 +546,15 @@ public class RouterConnectionClient {
 			mConnService.connect(sessionId, peerInfo, token, timeout);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to connect: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
 
+    /**
+     * disconnect a connected peer device.
+     *
+     * @param peerInfo info of device to be disconnected.
+     */
 	public void disconnect(DeviceInfo peerInfo) {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -366,9 +567,19 @@ public class RouterConnectionClient {
 			mConnService.disconnect(sessionId, peerInfo);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to disconnect: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
 
+    /**
+     * set connection related parameters at Connection Service; they will be used as default hereafter.
+     *
+     * @param devName name of this device appearing to peers.
+     * @param useSSL if use TLS/SSL for peer connections.
+     * @param liveTime the period between successive verifications of peer devices aliveness.
+     * @param connTime socket connection attempt timeout.
+     * @param searchTime peer device search timeout.
+     */
 	public void setConnectionInfo(String devName, boolean useSSL, int liveTime, int connTime, int searchTime) {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -381,9 +592,14 @@ public class RouterConnectionClient {
 			mConnService.setConnectionInfo(sessionId, devName, useSSL, liveTime, connTime, searchTime);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to setConnectionInfo: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
 
+    /**
+     * request current connection related parameters at Connection Service.
+     * the response is returned at ConnectionHandler.onGetConnectionInfo().
+     */
 	public void getConnectionInfo() {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -396,9 +612,14 @@ public class RouterConnectionClient {
 			mConnService.getConnectionInfo(sessionId);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to getConnectionInfo: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
 
+    /**
+     * request current device info (name, address, port) known at Connection Service.
+     * the response is returned at ConnectionHandler.onGetDeviceInfo().
+     */
 	public void getDeviceInfo() {
 		if (mConnService == null) {
 			Message m = Message.obtain();
@@ -411,9 +632,14 @@ public class RouterConnectionClient {
 			mConnService.getDeviceInfo(sessionId);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to getDeviceInfo: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
 
+    /**
+     * retrieve info of connected peer devices;
+     * the response is returned at ConnectionHandler.onGetPeerDevices().
+     */
 	public void getPeerDevices() {
 		Log.d(TAG, "bef wait for Conn service");
 		if (mConnService == null) {
@@ -427,9 +653,14 @@ public class RouterConnectionClient {
 			mConnService.getPeerDevices(sessionId);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to getPeerDevices: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 	}
-	
+
+    /**
+     * retrieve info of attached networks;
+     * the response is returned at ConnectionHandler.onGetNetworks().
+     */
 	public void getNetworks() {
 		Log.d(TAG, "getNetworks bef wait for Conn service");
 		if (mConnService == null) {
@@ -443,9 +674,15 @@ public class RouterConnectionClient {
 			mConnService.getNetworks(sessionId);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to getNetworks: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 		
 	}
+
+    /**
+     * request info of the network currently used to connect peer devices.
+     * the response is at ConnectionHandler.onGetActiveNetwork().
+     */
 	public void getActiveNetwork() {
 		Log.d(TAG, "getActiveNetwork bef wait for Conn service");
 		if (mConnService == null) {
@@ -459,9 +696,16 @@ public class RouterConnectionClient {
 			mConnService.getActiveNetwork(sessionId);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to getActiveNetwork: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
 		}
 		
 	}
+
+    /**
+     * choose network as the network used to connect peer devices hereafter.
+     *
+     * @param net info of the network to be activated.
+     */
 	public void activateNetwork(NetInfo net) {
 		Log.d(TAG, "activateNetwork bef wait for Conn service");
 		if (mConnService == null) {
@@ -476,7 +720,8 @@ public class RouterConnectionClient {
 			mConnService.activateNetwork(sessionId, net);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to activateNetwork: " + e.getMessage());
-		}		
+            registeredHandler.onError(e.getMessage());
+		}
 	}
 
 }

@@ -260,7 +260,7 @@ public class RouterService extends Service implements CoreAPI {
 
 		// notify others router is up by send ACTION_ROUTER_UP
 		// eg. start remote intent service here
-		Intent startupSignal = new Intent(Router.ACTION_ROUTER_UP);
+		Intent startupSignal = new Intent(Router.Intent.ACTION_ROUTER_UP);
 		startService(startupSignal);
 
 		// add notification and start service at foreground
@@ -268,7 +268,7 @@ public class RouterService extends Service implements CoreAPI {
 				getText(R.string.router_notif_ticker),
 				System.currentTimeMillis());
 		Intent notificationIntent = new Intent(
-				Router.ACTION_CONNECTOR);
+				Router.Intent.ACTION_CONNECTOR);
 		notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                                             Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
@@ -288,9 +288,9 @@ public class RouterService extends Service implements CoreAPI {
 		if (intent != null) {
 			String action = intent.getAction();
 			if (action != null && action.length() > 0) {
-				if (Router.ACTION_ROUTER_RESET.equals(action)) {
+				if (Router.Intent.ACTION_ROUTER_RESET.equals(action)) {
 					resetRouter();
-				} else if (Router.ACTION_ROUTER_SHUTDOWN.equals(action)) {
+				} else if (Router.Intent.ACTION_ROUTER_SHUTDOWN.equals(action)) {
 						stopSelf();
 				} else if (!startUpActions(action)) {
 					if (mIntentingAPIPeer == null) {
@@ -305,10 +305,11 @@ public class RouterService extends Service implements CoreAPI {
 	}
 
 	boolean startUpActions(String action) {
-		if (action.equals(Router.ACTION_SERVICE)
-				|| action.equals(Router.ACTION_CONNECTION_SERVICE)
-				|| action.equals(Router.ACTION_GROUP_SERVICE)
-				|| action.equals(Router.ACTION_MESSENGER_SERVICE))
+		if (action.equals(Router.Intent.ACTION_SERVICE)
+				|| action.equals(Router.Intent.ACTION_ROUTER_STARTUP)
+				|| action.equals(Router.Intent.ACTION_CONNECTION_SERVICE)
+				|| action.equals(Router.Intent.ACTION_GROUP_SERVICE)
+				|| action.equals(Router.Intent.ACTION_MESSENGER_SERVICE))
 			return true;
 		else
 			return false;
@@ -320,17 +321,17 @@ public class RouterService extends Service implements CoreAPI {
 		Log.d(TAG, "RouterService onBind() called with action=" + action);
 		if (action == null)
 			return null;
-		if (action.equals(Router.ACTION_CONNECTION_SERVICE)) {
+		if (action.equals(Router.Intent.ACTION_CONNECTION_SERVICE)) {
 			if (idlConnPeer == null)
 				idlConnPeer = new AidlConnAPIPeer(this);
 			Log.d(TAG, "conn service created & returned");
 			return idlConnPeer.getBinder();
-		} else if (action.equals(Router.ACTION_GROUP_SERVICE)) {
+		} else if (action.equals(Router.Intent.ACTION_GROUP_SERVICE)) {
 			if (idlGroupPeer == null)
 				idlGroupPeer = new AidlGroupAPIPeer(this);
 			Log.d(TAG, "group service created & returned");
 			return idlGroupPeer.getBinder();
-		} else if (action.equals(Router.ACTION_MESSENGER_SERVICE)) {
+		} else if (action.equals(Router.Intent.ACTION_MESSENGER_SERVICE)) {
 			if (messengerPeer == null)
 				messengerPeer = new MessengerAPIPeer(this);
 			Log.d(TAG, "messenger created & returned");
@@ -370,7 +371,7 @@ public class RouterService extends Service implements CoreAPI {
 		// stop connector
 		mTCPConn.stop();
 		
-		Intent downInt = new Intent(Router.ACTION_ROUTER_DOWN);
+		Intent downInt = new Intent(Router.Intent.ACTION_ROUTER_DOWN);
 		startService(downInt);
 	}
 
@@ -392,7 +393,7 @@ public class RouterService extends Service implements CoreAPI {
 		// how to restart linkMgr
 		
 		//notify others
-		Intent clearInt = new Intent(Router.ACTION_ROUTER_CLEAR);
+		Intent clearInt = new Intent(Router.Intent.ACTION_ROUTER_CLEAR);
 		startService(clearInt);
 	}
 
@@ -440,6 +441,9 @@ public class RouterService extends Service implements CoreAPI {
 			Log.d(TAG, "leader is null");
 		else 
 			Log.d(TAG, "leader addr="+grpLeader.addr+", leader="+grpLeader);
+        if (timeout < 0) { //when timeout < 0, use preset value
+            timeout = searchTimeout;
+        }
 		Log.d(TAG, "scan timeout="+timeout);
 		linkMgr.startSearch(mMyDeviceInfo, grpLeader, timeout, h);
 		Log.d(TAG, "scan started");
@@ -455,6 +459,9 @@ public class RouterService extends Service implements CoreAPI {
 	public void connectPeer(int sessionId, DeviceInfo peer, byte[] token,
 			int timeout) {
 		Log.d(TAG, "start connect to: " + peer.addr);
+        if (timeout < 0) { //when timeout < 0, use preset value
+            timeout = connTimeout;
+        }
 		mTCPConn.connect(peer, token, timeout);
 	}
 
@@ -493,9 +500,9 @@ public class RouterService extends Service implements CoreAPI {
 		mLocalGroupTable.put(groupId, ghandler);
 		//
 		Bundle b = new Bundle();
-		b.putInt(Router.MSG_ID, MsgId.JOIN_GROUP);
-		b.putString(Router.GROUP_ID, groupId);
-		b.putString(Router.DEVICE_ADDR, mMyDeviceInfo.addr);
+		b.putInt(Router.MsgKey.MSG_ID, MsgId.JOIN_GROUP);
+		b.putString(Router.MsgKey.GROUP_ID, groupId);
+		b.putString(Router.MsgKey.DEVICE_ADDR, mMyDeviceInfo.addr);
 		sendMsg(groupId, null, b);
 
 		// send Self_Join msgs with all connected peer devices
@@ -528,9 +535,9 @@ public class RouterService extends Service implements CoreAPI {
 		mLocalGroupTable.remove(groupId);
 		//
 		Bundle b = new Bundle();
-		b.putInt(Router.MSG_ID, MsgId.LEAVE_GROUP);
-		b.putString(Router.GROUP_ID, groupId);
-		b.putString(Router.DEVICE_ADDR, mMyDeviceInfo.addr);
+		b.putInt(Router.MsgKey.MSG_ID, MsgId.LEAVE_GROUP);
+		b.putString(Router.MsgKey.GROUP_ID, groupId);
+		b.putString(Router.MsgKey.DEVICE_ADDR, mMyDeviceInfo.addr);
 		sendMsg(groupId, null, b);
 
 		// sendMyLeft
@@ -554,7 +561,7 @@ public class RouterService extends Service implements CoreAPI {
 		}
 
 		// multicast on groupId
-		int mid = msg.getInt(Router.MSG_ID);
+		int mid = msg.getInt(Router.MsgKey.MSG_ID);
 		// group join/leave msgs should be broadcasted
 		if (groupId != null && mid != MsgId.JOIN_GROUP
 				&& mid != MsgId.LEAVE_GROUP) {
@@ -815,17 +822,17 @@ public class RouterService extends Service implements CoreAPI {
 
 		public void onRecvData(byte[] data, int len, Connection srcConn) {
 			Bundle b = Utils.unmarshallBundle(data, len);
-			String groupId = b.getString(Router.GROUP_ID);
+			String groupId = b.getString(Router.MsgKey.GROUP_ID);
 			if (groupId == null || groupId.length() == 0) {
 				Log.e(TAG, "Incoming msg miss groupId");
 				return;
 			}
 			GroupHandler ghandler = mLocalGroupTable.get(groupId);
-			int msgId = b.getInt(Router.MSG_ID);
+			int msgId = b.getInt(Router.MsgKey.MSG_ID);
 			switch (msgId) {
 			case MsgId.JOIN_GROUP:
 				Log.d(TAG, "recv joinGroup: " + groupId);
-				String addr = b.getString(Router.DEVICE_ADDR);
+				String addr = b.getString(Router.MsgKey.DEVICE_ADDR);
 				if (addr == null) {
 					return;
 				}
@@ -852,8 +859,8 @@ public class RouterService extends Service implements CoreAPI {
 				break;
 			case MsgId.LEAVE_GROUP:
 				Log.d(TAG, "recv leaveGroup: " + groupId);
-				groupId = b.getString(Router.GROUP_ID);
-				addr = b.getString(Router.DEVICE_ADDR);
+				groupId = b.getString(Router.MsgKey.GROUP_ID);
+				addr = b.getString(Router.MsgKey.DEVICE_ADDR);
 				if (addr == null) {
 					return;
 				}

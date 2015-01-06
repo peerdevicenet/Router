@@ -30,14 +30,15 @@ import android.util.Log;
 import com.xconns.peerdevicenet.DeviceInfo;
 import com.xconns.peerdevicenet.NetInfo;
 import com.xconns.peerdevicenet.utils.PlainSocketFactory;
+import com.xconns.peerdevicenet.utils.RouterConfig;
 import com.xconns.peerdevicenet.utils.Utils;
 
 public class DiscoveryMemberThread extends Thread {
 	public static final String TAG = "DiscoveryMemberThread";
 
 	final int BUFFER_SIZE = 1024;
-	int scanTimeout = 15000; // scan timeout - default 15 seonds
-	int connTimeout = 5000; // conn timeout - default 5 seonds
+	int scanTimeout = RouterConfig.DEF_SEARCH_TIMEOUT * 1000; // scan timeout - default 15 seonds
+	int connTimeout = RouterConfig.DEF_CONN_TIMEOUT * 1000; // conn timeout - default 5 seonds
 
 	RouterService context = null;
 
@@ -197,7 +198,7 @@ public class DiscoveryMemberThread extends Thread {
 				synchronized (this) {
 					done = canceled;
 					if (!done) {
-						if (scanTimeout < 0) {
+						if (scanTimeout == 0) {
 							//should wait for leader to terminate
 							//otherwise wait 5 minutes to cleanup socket
 							scanTimeout = 300000; //5minutes

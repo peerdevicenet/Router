@@ -373,12 +373,12 @@ public class Utils {
 
 	public static Bundle net2Bundle(NetInfo net) {
 		Bundle b = new Bundle();
-		b.putInt(Router.NET_TYPE, net.type);
-		b.putString(Router.NET_NAME, net.name);
-		b.putString(Router.NET_PASS, net.pass);
-		b.putByteArray(Router.NET_INFO, net.info);
-		b.putString(Router.NET_INTF_NAME, net.intfName);
-		b.putString(Router.NET_ADDR, net.addr);
+		b.putInt(Router.MsgKey.NET_TYPE, net.type);
+		b.putString(Router.MsgKey.NET_NAME, net.name);
+		b.putString(Router.MsgKey.NET_PASS, net.pass);
+		b.putByteArray(Router.MsgKey.NET_INFO, net.info);
+		b.putString(Router.MsgKey.NET_INTF_NAME, net.intfName);
+		b.putString(Router.MsgKey.NET_ADDR, net.addr);
 		return b;
 	}
 
@@ -405,12 +405,12 @@ public class Utils {
 				intfNames[num] = net.intfName;
 				addrs[num++] = net.addr;
 			}
-			b.putIntArray(Router.NET_TYPES, types);
-			b.putStringArray(Router.NET_NAMES, names);
-			b.putStringArray(Router.NET_PASSES, passes);
-			b.putStringArray(Router.NET_INFOS, infos);
-			b.putStringArray(Router.NET_INTF_NAMES, intfNames);
-			b.putStringArray(Router.NET_ADDRS, addrs);
+			b.putIntArray(Router.MsgKey.NET_TYPES, types);
+			b.putStringArray(Router.MsgKey.NET_NAMES, names);
+			b.putStringArray(Router.MsgKey.NET_PASSES, passes);
+			b.putStringArray(Router.MsgKey.NET_INFOS, infos);
+			b.putStringArray(Router.MsgKey.NET_INTF_NAMES, intfNames);
+			b.putStringArray(Router.MsgKey.NET_ADDRS, addrs);
 		}
 		return b;
 	}
@@ -419,9 +419,11 @@ public class Utils {
 	// convert DeviceInfo & DeviceInfo[] to Bundle
 	public static Bundle device2Bundle(DeviceInfo device) {
 		Bundle b = new Bundle();
-		b.putString(Router.PEER_NAME, device.name);
-		b.putString(Router.PEER_ADDR, device.addr);
-		b.putString(Router.PEER_PORT, device.port);
+		if (device != null) { 
+				b.putString(Router.MsgKey.PEER_NAME, device.name);
+				b.putString(Router.MsgKey.PEER_ADDR, device.addr);
+				b.putString(Router.MsgKey.PEER_PORT, device.port);
+		}
 		return b;
 	}
 
@@ -434,13 +436,15 @@ public class Utils {
 			String[] ports = new String[numDevices];
 			int num = 0;
 			for (DeviceInfo dev : devices) {
-				names[num] = dev.name;
-				addrs[num] = dev.addr;
-				ports[num++] = dev.port;
+				if (dev != null) {
+					names[num] = dev.name;
+					addrs[num] = dev.addr;
+					ports[num++] = dev.port;
+				}
 			}
-			b.putStringArray(Router.PEER_NAMES, names);
-			b.putStringArray(Router.PEER_ADDRS, addrs);
-			b.putStringArray(Router.PEER_PORTS, ports);
+			b.putStringArray(Router.MsgKey.PEER_NAMES, names);
+			b.putStringArray(Router.MsgKey.PEER_ADDRS, addrs);
+			b.putStringArray(Router.MsgKey.PEER_PORTS, ports);
 		}
 		return b;
 	}

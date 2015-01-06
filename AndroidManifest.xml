@@ -65,10 +65,6 @@
                      without explicitly supplying the implementation class.
                 -->
                 <action android:name="com.xconns.peerdevicenet.Service" />
-                <!-- life cycle -->
-                <action android:name="com.xconns.peerdevicenet.Startup" />
-                <action android:name="com.xconns.peerdevicenet.Reset" />
-                <action android:name="com.xconns.peerdevicenet.Shutdown" />
                 <!--
                      These are the IDL interfaces supported by the service, which
                      you can bind to.
@@ -77,6 +73,11 @@
                 <action android:name="com.xconns.peerdevicenet.GroupService" />
                 <action android:name="com.xconns.peerdevicenet.Messenger" />
 
+                <!-- life cycle -->
+                <action android:name="com.xconns.peerdevicenet.Startup" />
+                <action android:name="com.xconns.peerdevicenet.Reset" />
+                <action android:name="com.xconns.peerdevicenet.Shutdown" />
+                
                 <!-- The following are intenting api -->
 
 

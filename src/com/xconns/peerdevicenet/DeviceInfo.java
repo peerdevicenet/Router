@@ -19,11 +19,27 @@ package com.xconns.peerdevicenet;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * Info of a device in peer-peer network:
+ * its name, address and port number.
+ */
 public class DeviceInfo implements Parcelable {
+    /**
+     * Device's name in peer-peer network; started initially with Android OS build model name
+     * and can be changed later by ConnectionService.setConnectionInfo().
+     */
 	public String name = null;
+    /**
+     * Device's address in peer-peer network.
+     */
 	public String addr = null;
+    /**
+     * Device's acceptance port number at which other peers can connect.
+     */
 	public String port = null;
-	
+    /**
+     * Parcel marshaling setting.
+     */
 	public static final Creator<DeviceInfo> CREATOR = new Creator<DeviceInfo>() {
 		public DeviceInfo[] newArray(int size) {
 			return new DeviceInfo[size];

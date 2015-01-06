@@ -60,64 +60,72 @@ public class MessengerAPIPeer implements Peer {
 			switch (msg.what) {
 			case MsgId.START_SEARCH:
 				Bundle data = msg.getData();
-				String name = data.getString(Router.PEER_NAME);
-				String addr = data.getString(Router.PEER_ADDR);
-				String port = data.getString(Router.PEER_PORT);
-				int timeout = data.getInt(Router.SEARCH_TIMEOUT);
-				router.startPeerSearch(sessionId, new DeviceInfo(name, addr, port), timeout);
+				String name = data.getString(Router.MsgKey.PEER_NAME);
+				String addr = data.getString(Router.MsgKey.PEER_ADDR);
+				String port = data.getString(Router.MsgKey.PEER_PORT);
+				int timeout = data.getInt(Router.MsgKey.SEARCH_TIMEOUT);
+                DeviceInfo leader = null;
+                if (addr!=null&&addr.length()>0 && port!=null&&port.length()>0) {
+                    leader = new DeviceInfo(name, addr, port);
+                }
+				router.startPeerSearch(sessionId, leader, timeout);
 				break;
 			case MsgId.STOP_SEARCH:
 				router.stopPeerSearch(sessionId);
 				break;
 			case MsgId.ACCEPT_CONNECTION:
 				data = msg.getData();
-				name = data.getString(Router.PEER_NAME);
-				addr = data.getString(Router.PEER_ADDR);
-				port = data.getString(Router.PEER_PORT);
+				name = data.getString(Router.MsgKey.PEER_NAME);
+				addr = data.getString(Router.MsgKey.PEER_ADDR);
+				port = data.getString(Router.MsgKey.PEER_PORT);
 				router.acceptConnection(sessionId, new DeviceInfo(name, addr, port));
 				break;
 			case MsgId.DENY_CONNECTION:
 				data = msg.getData();
-				name = data.getString(Router.PEER_NAME);
-				addr = data.getString(Router.PEER_ADDR);
-				port = data.getString(Router.PEER_PORT);
-				int denyCode = data.getInt(Router.CONN_DENY_CODE);
+				name = data.getString(Router.MsgKey.PEER_NAME);
+				addr = data.getString(Router.MsgKey.PEER_ADDR);
+				port = data.getString(Router.MsgKey.PEER_PORT);
+				int denyCode = data.getInt(Router.MsgKey.CONN_DENY_CODE);
 				router.denyConnection(sessionId, new DeviceInfo(name, addr, port), denyCode);
 				break;
 			case MsgId.CONNECT:
 				data = msg.getData();
-				name = data.getString(Router.PEER_NAME);
-				addr = data.getString(Router.PEER_ADDR);
-				port = data.getString(Router.PEER_PORT);
-				byte[] token = data.getByteArray(Router.AUTHENTICATION_TOKEN);
-				timeout = data.getInt(Router.CONNECT_TIMEOUT);
+				name = data.getString(Router.MsgKey.PEER_NAME);
+				addr = data.getString(Router.MsgKey.PEER_ADDR);
+				port = data.getString(Router.MsgKey.PEER_PORT);
+				byte[] token = data.getByteArray(Router.MsgKey.AUTHENTICATION_TOKEN);
+				timeout = data.getInt(Router.MsgKey.CONNECT_TIMEOUT);
 				router.connectPeer(sessionId, new DeviceInfo(name, addr, port),
 						token, timeout);
 				break;
 			case MsgId.DISCONNECT:
 				data = msg.getData();
-				name = data.getString(Router.PEER_NAME);
-				addr = data.getString(Router.PEER_ADDR);
-				port = data.getString(Router.PEER_PORT);
+				name = data.getString(Router.MsgKey.PEER_NAME);
+				addr = data.getString(Router.MsgKey.PEER_ADDR);
+				port = data.getString(Router.MsgKey.PEER_PORT);
 				router.disconnectPeer(sessionId, new DeviceInfo(name, addr,
 						port));
 				break;
 			case MsgId.JOIN_GROUP:
-				String groupId = msg.getData().getString(Router.GROUP_ID);
+				String groupId = msg.getData().getString(Router.MsgKey.GROUP_ID);
 				router.joinGroup(groupId, null, new MyGroupHandler(groupId));
 				break;
 			case MsgId.LEAVE_GROUP:
-				groupId = msg.getData().getString(Router.GROUP_ID);
+				groupId = msg.getData().getString(Router.MsgKey.GROUP_ID);
 				router.leaveGroup(groupId);
 				break;
 			case MsgId.SEND_MSG:
 				// send msg to peer thru socket
 				data = msg.getData();
-				name = data.getString(Router.PEER_NAME);
-				addr = data.getString(Router.PEER_ADDR);
-				port = data.getString(Router.PEER_PORT);
-				groupId = data.getString(Router.GROUP_ID);
-				router.sendMsg(groupId, new DeviceInfo(name, addr, port),
+				name = data.getString(Router.MsgKey.PEER_NAME);
+				addr = data.getString(Router.MsgKey.PEER_ADDR);
+				port = data.getString(Router.MsgKey.PEER_PORT);
+				groupId = data.getString(Router.MsgKey.GROUP_ID);
+                DeviceInfo targetDevice = null;
+                if (addr!=null&&addr.length()>0&&port!=null&port.length()>0) {
+                    targetDevice = new DeviceInfo(name, addr, port);
+                }
+				router.sendMsg(groupId, targetDevice,
 						msg.getData());
 				// now for testing, just bounce back
 				// recvedMsg("sent: " + msg.getData().getString(MSG_DATA));
@@ -130,14 +138,14 @@ public class MessengerAPIPeer implements Peer {
 				break;
 			case MsgId.SET_CONNECTION_INFO:
 				data = msg.getData();
-				name = data.getString(Router.DEVICE_NAME);
-				int liveTime = data.getInt(Router.LIVENESS_TIMEOUT,
+				name = data.getString(Router.MsgKey.DEVICE_NAME);
+				int liveTime = data.getInt(Router.MsgKey.LIVENESS_TIMEOUT,
 						-1);
-				int connTime = data.getInt(Router.CONNECT_TIMEOUT,
+				int connTime = data.getInt(Router.MsgKey.CONNECT_TIMEOUT,
 						-1);
-				int searchTime = data.getInt(Router.SEARCH_TIMEOUT,
+				int searchTime = data.getInt(Router.MsgKey.SEARCH_TIMEOUT,
 						-1);
-				boolean useSSL = data.getBoolean(Router.USE_SSL,
+				boolean useSSL = data.getBoolean(Router.MsgKey.USE_SSL,
 						RouterConfig.DEF_USE_SSL);
 				router.setConnectionInfo(sessionId, name, useSSL, liveTime, connTime,
 						searchTime);
@@ -152,7 +160,7 @@ public class MessengerAPIPeer implements Peer {
 				data = msg.getData();
 				groupId = null;
 				if (data != null)
-					groupId = data.getString(Router.GROUP_ID);
+					groupId = data.getString(Router.MsgKey.GROUP_ID);
 				router.getConnectedPeers(groupId, sessionId);
 				break;
 			case MsgId.GET_NETWORKS:
@@ -163,15 +171,15 @@ public class MessengerAPIPeer implements Peer {
 				break;
 			case MsgId.ACTIVATE_NETWORK:
 				data = msg.getData();
-				int type = data.getInt(Router.NET_TYPE);
-				name = data.getString(Router.NET_NAME);
-				int encrypt = data.getInt(Router.NET_ENCRYPT);
-				String pass = data.getString(Router.NET_PASS);
-				boolean hidden = data.getBoolean(Router.NET_HIDDEN);
-				byte[] info = data.getByteArray(Router.NET_INFO);
-				String intfName = data.getString(Router.NET_INTF_NAME);
-				addr = data.getString(Router.NET_ADDR);
-				boolean mcast = data.getBoolean(Router.NET_INTF_MCAST);
+				int type = data.getInt(Router.MsgKey.NET_TYPE);
+				name = data.getString(Router.MsgKey.NET_NAME);
+				int encrypt = data.getInt(Router.MsgKey.NET_ENCRYPT);
+				String pass = data.getString(Router.MsgKey.NET_PASS);
+				boolean hidden = data.getBoolean(Router.MsgKey.NET_HIDDEN);
+				byte[] info = data.getByteArray(Router.MsgKey.NET_INFO);
+				String intfName = data.getString(Router.MsgKey.NET_INTF_NAME);
+				addr = data.getString(Router.MsgKey.NET_ADDR);
+				boolean mcast = data.getBoolean(Router.MsgKey.NET_INTF_MCAST);
 				router.activateNetwork(sessionId, new NetInfo(type, name, encrypt, pass,
 						hidden, info, intfName, addr, mcast));
 				break;
@@ -216,7 +224,7 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onError(String errInfo) {
 			Bundle b = new Bundle();
-			b.putString(Router.MSG_DATA, errInfo);
+			b.putString(Router.MsgKey.MSG_DATA, errInfo);
 			Message m = Message.obtain(null, MsgId.ERROR);
 			m.setData(b);
 			recvMsg(m);
@@ -255,7 +263,7 @@ public class MessengerAPIPeer implements Peer {
 		public void onSearchFoundDevice(DeviceInfo device, boolean useSSL) {
 			Message m = Message.obtain(null, MsgId.SEARCH_FOUND_DEVICE);
 			Bundle b = Utils.device2Bundle(device);
-			b.putBoolean(Router.USE_SSL, useSSL);
+			b.putBoolean(Router.MsgKey.USE_SSL, useSSL);
 			m.setData(b);
 			recvMsg(m);
 		}
@@ -268,7 +276,7 @@ public class MessengerAPIPeer implements Peer {
 		public void onConnecting(DeviceInfo device, byte[] token) {
 			Message m = Message.obtain(null, MsgId.CONNECTING);
 			Bundle b = Utils.device2Bundle(device);
-			b.putByteArray(Router.AUTHENTICATION_TOKEN, token);
+			b.putByteArray(Router.MsgKey.AUTHENTICATION_TOKEN, token);
 			m.setData(b);
 			recvMsg(m);
 		}
@@ -276,7 +284,7 @@ public class MessengerAPIPeer implements Peer {
 		public void onConnectionFailed(DeviceInfo device, int rejectCode) {
 			Message m = Message.obtain(null, MsgId.CONNECTION_FAILED);
 			Bundle b = Utils.device2Bundle(device);
-			b.putInt(Router.CONN_DENY_CODE, rejectCode);
+			b.putInt(Router.MsgKey.CONN_DENY_CODE, rejectCode);
 			m.setData(b);
 
 			recvMsg(m);
@@ -330,11 +338,11 @@ public class MessengerAPIPeer implements Peer {
 			Bundle i = new Bundle();
 			m.setData(i);
 
-			i.putString(Router.DEVICE_NAME, devName);
-			i.putInt(Router.LIVENESS_TIMEOUT, liveTime);
-			i.putInt(Router.CONNECT_TIMEOUT, connTime);
-			i.putInt(Router.SEARCH_TIMEOUT, searchTime);
-			i.putBoolean(Router.USE_SSL, useSSL);
+			i.putString(Router.MsgKey.DEVICE_NAME, devName);
+			i.putInt(Router.MsgKey.LIVENESS_TIMEOUT, liveTime);
+			i.putInt(Router.MsgKey.CONNECT_TIMEOUT, connTime);
+			i.putInt(Router.MsgKey.SEARCH_TIMEOUT, searchTime);
+			i.putBoolean(Router.MsgKey.USE_SSL, useSSL);
 
 			recvMsg(m);
 		}
@@ -350,8 +358,8 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onError(String errInfo) {
 			Bundle b = new Bundle();
-			b.putString(Router.MSG_DATA, errInfo);
-			b.putString(Router.GROUP_ID, groupId);
+			b.putString(Router.MsgKey.MSG_DATA, errInfo);
+			b.putString(Router.MsgKey.GROUP_ID, groupId);
 			Message m = Message.obtain(null, MsgId.ERROR);
 			m.setData(b);
 			recvMsg(m);
@@ -359,7 +367,7 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onSelfJoin(DeviceInfo[] devs) {
 			Bundle b = Utils.deviceArray2Bundle(devs);
-			b.putString(Router.GROUP_ID, groupId);
+			b.putString(Router.MsgKey.GROUP_ID, groupId);
 			Message m = Message.obtain(null, MsgId.SELF_JOIN);
 			m.setData(b);
 			recvMsg(m);
@@ -367,7 +375,7 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onPeerJoin(DeviceInfo dev) {
 			Bundle b = Utils.device2Bundle(dev);
-			b.putString(Router.GROUP_ID, groupId);
+			b.putString(Router.MsgKey.GROUP_ID, groupId);
 			Message m = Message.obtain(null, MsgId.PEER_JOIN);
 			m.setData(b);
 			recvMsg(m);
@@ -375,7 +383,7 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onSelfLeave() {
 			Bundle b = new Bundle();
-			b.putString(Router.GROUP_ID, groupId);
+			b.putString(Router.MsgKey.GROUP_ID, groupId);
 			Message m = Message.obtain(null, MsgId.SELF_LEAVE);
 			m.setData(b);
 			recvMsg(m);
@@ -383,7 +391,7 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onPeerLeave(DeviceInfo dev) {
 			Bundle b = Utils.device2Bundle(dev);
-			b.putString(Router.GROUP_ID, groupId);
+			b.putString(Router.MsgKey.GROUP_ID, groupId);
 			Message m = Message.obtain(null, MsgId.PEER_LEAVE);
 			m.setData(b);
 			recvMsg(m);
@@ -391,10 +399,10 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onReceive(DeviceInfo src, Bundle msg) {
 			Message m = Message.obtain(null, MsgId.RECV_MSG);
-			msg.putString(Router.GROUP_ID, groupId);
-			msg.putString(Router.PEER_NAME, src.name);
-			msg.putString(Router.PEER_ADDR, src.addr);
-			msg.putString(Router.PEER_PORT, src.port);
+			msg.putString(Router.MsgKey.GROUP_ID, groupId);
+			msg.putString(Router.MsgKey.PEER_NAME, src.name);
+			msg.putString(Router.MsgKey.PEER_ADDR, src.addr);
+			msg.putString(Router.MsgKey.PEER_PORT, src.port);
 			m.setData(msg);
 			Log.d(TAG,"recv a msg");
 			recvMsg(m);
@@ -402,7 +410,7 @@ public class MessengerAPIPeer implements Peer {
 
 		public void onGetPeerDevices(DeviceInfo[] devices) {
 			Bundle b = Utils.deviceArray2Bundle(devices);
-			b.putString(Router.GROUP_ID, groupId);
+			b.putString(Router.MsgKey.GROUP_ID, groupId);
 			Message m = Message.obtain(null, MsgId.GET_CONNECTED_PEERS);
 			m.setData(b);
 			recvMsg(m);
