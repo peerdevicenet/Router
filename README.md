@@ -18,31 +18,32 @@ Router is published as two jar/aar files at Maven Central. You can download the 
                         * <dependency>
                                 * <groupId>com.xconns.peerdevicenet</groupId>
                                 * <artifactId>peerdevicenet-api</artifactId>
-                                * <version>1.1.5</version>
+                                * <version>1.1.6</version>
                         * </dependency>
                 * gradle:
-                        * 'com.xconns.peerdevicenet:peerdevicenet-api:1.1.5'
+                        * 'com.xconns.peerdevicenet:peerdevicenet-api:1.1.6'
        * peerdevicenet-router.aar:
                 * allow you embedded a Router instance into your app
                 * Maven:
                         * <dependency>
                                 * <groupId>com.xconns.peerdevicenet</groupId>
                                 * <artifactId>peerdevicenet-router</artifactId>
-                                * <version>1.1.5</version>
+                                * <version>1.1.6</version>
                                 * <packaging>aar</packaging>
                         * </dependency>
                 * gradle:
-                        * 'com.xconns.peerdevicenet:peerdevicenet-router:1.1.5'
+                        * 'com.xconns.peerdevicenet:peerdevicenet-router:1.1.6'
 
 Router can be used in 2 ways:
 
        * directly embed a Router instance into your app in one of the following two ways:
                   * download Router project and use it as your app's dependent library project.
-                  * if you are using android's new gradle build system, you can import it as 'com.xconns.peerdevicenet:peerdevicenet-router:1.1.5'.
+                  * if you are using android's new gradle build system, you can import it as 'com.xconns.peerdevicenet:peerdevicenet-router:
+'.
 
        * use router's API (peerdevicenet-api) to acces a Router instance embedded in other connector/manager app.
                   * download peerdevicenet-api.jar from the above MavenCentral addr and copy to project's "libs/" directory.
-                  * if you are using android's new gradle build system, you can import it as 'com.xconns.peerdevicenet:peerdevicenet-api:1.1.5'.
+                  * if you are using android's new gradle build system, you can import it as 'com.xconns.peerdevicenet:peerdevicenet-api:1.1.6'.
 
 Two kinds of Apps built using Router:
 
