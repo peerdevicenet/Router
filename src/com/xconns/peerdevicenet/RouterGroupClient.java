@@ -33,7 +33,7 @@ import com.xconns.peerdevicenet.IRouterGroupService;
 
 /**
  * RouterGroupClient wrapper class is the preferred way to access the asynchronous one-way AIDL api of Router Group Service.
- * It enables two-way asynchronous messaging between clients and GroupService.
+ * It enables two-way asynchronous messaging between clients and GroupService, and performs some extra book keeping.
  * <ul>
  *     <li>bind to (later unbind) Router Group Service and automatically join the group named in constructor.</li>
  *     <li>expose api methods to invoke GroupService one-way asynchronous api
@@ -43,6 +43,19 @@ import com.xconns.peerdevicenet.IRouterGroupService;
  *     to allow GroupService call back to notify events such as peer device leaving group, or receiving a message</li>
  *     <li>buffering api calls when the binding with GroupService is not ready yet,
  *     and resend buffered calls when the binding is ready.</li>
+ * </ul>
+ * <p>
+ * Since RouterGroupClient will join the named group automatically when it binds to 
+ * GroupService, it expose the following simple api:
+ * <ul>
+ * <li>broadcast message to whole group or send message to a specific peer device
+ * <pre>
+ * <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.html#send(com.xconns.peerdevicenet.DeviceInfo,%20byte[])">send</a></strong>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;dest, byte[]&nbsp;msg)
+ * </pre>
+ * <li>query existing peer devices in this group:
+ * <pre>
+ * <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.html#getPeerDevices()">getPeerDevices</a>()
+ * </pre>
  * </ul>
  * <p>
  * A sample scenario of using RouterGroupClient to interact with GroupService is as following:
@@ -77,6 +90,25 @@ public class RouterGroupClient {
     /**
      * GroupHandler exposes client side async messaging one-way AIDL api to allow GroupService notify
      * events such as peer devices joining group, peer devices leaving a group or receiving a message.
+	 * <p>
+	 * It exposes the following groups of callback methods in accordance with GroupHandler aidl api:
+	 * <ul>
+	 * <li>Group membership change detection:
+	 * <pre>
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onPeerJoin(com.xconns.peerdevicenet.DeviceInfo)">onPeerJoin</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onPeerLeave(com.xconns.peerdevicenet.DeviceInfo)">onPeerLeave</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onSelfJoin(com.xconns.peerdevicenet.DeviceInfo[])">onSelfJoin</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>[]&nbsp;peersInfo)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onSelfLeave()">onSelfLeave</a>()
+	 * </pre>
+	 * <li>receive messages from group peer devices:
+	 * <pre>
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onReceive(com.xconns.peerdevicenet.DeviceInfo,%20byte[])">onReceive</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;src, byte[]&nbsp;msg)
+	 * </pre>
+	 * <li>info query:
+	 * <pre>
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onGetPeerDevices(com.xconns.peerdevicenet.DeviceInfo[])">onGetPeerDevices</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>[]&nbsp;devices)
+	 * </pre>
+	 * </ul>
      */
 	public interface GroupHandler {
         /**

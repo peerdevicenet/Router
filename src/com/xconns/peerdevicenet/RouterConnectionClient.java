@@ -33,7 +33,7 @@ import com.xconns.peerdevicenet.IRouterConnectionService;
 
 /**
  * RouterConnectionClient wrapper class is the preferred way to access the asynchronous one-way AIDL api of Router Connection Service.
- * It enables two-way asynchronous messaging between clients and ConnectionService:
+ * It enables two-way asynchronous messaging between clients and ConnectionService, and performs some extra book keeping:
  * <ul>
  * <li> bind to (later unbind) Router ConnectionService to start a new session and hold session id.
  * <li> expose api methods which invoke ConnectionService one-way asynchronous messaging api
@@ -43,6 +43,35 @@ import com.xconns.peerdevicenet.IRouterConnectionService;
  *    call back to notify events such as network detachment, device connection and disconnection.
  * <li> buffering api calls when the binding with ConnectionService is not ready,
  *    and resend buffered calls when the binding is ready.
+ * </ul>
+ * <p>
+ * It exposes the following groups of methods in accordance with ConnectionService AIDL api:
+ * <ul>
+ * <li>network detection and management:
+ * <pre>
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#getNetworks%28%29">getNetworks</a>()
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#getActiveNetwork%28%29">getActiveNetwork</a>()
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#activateNetwork%28com.xconns.peerdevicenet.NetInfo%29">activateNetwork</a>(<a href="../../../com/xconns/peerdevicenet/NetInfo.html" title="class in com.xconns.peerdevicenet">NetInfo</a>&nbsp;net)
+ * </pre>
+ * <li>peer discovery:
+ * <pre>
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#startPeerSearch%28com.xconns.peerdevicenet.DeviceInfo,%20int%29">startPeerSearch</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;groupLeader, int&nbsp;timeout)
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#stopPeerSearch%28%29">stopPeerSearch</a>()
+ * </pre>
+ * <li>peer device connection:
+ * <pre>
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#acceptConnection%28com.xconns.peerdevicenet.DeviceInfo%29">acceptConnection</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peer)
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#connect%28com.xconns.peerdevicenet.DeviceInfo,%20byte[],%20int%29">connect</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo, byte[]&nbsp;token, int&nbsp;timeout)
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#denyConnection%28com.xconns.peerdevicenet.DeviceInfo,%20int%29">denyConnection</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peer, int&nbsp;rejectCode)
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#disconnect%28com.xconns.peerdevicenet.DeviceInfo%29">disconnect</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
+ * </pre>
+ * <li>info query:
+ * <pre>
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#setConnectionInfo%28java.lang.String,%20boolean,%20int,%20int,%20int%29">setConnectionInfo</a>(<a href="file:///home/dev/tools/adt-bundle-linux-x86_64-20140702/sdk/docs/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;devName, boolean&nbsp;useSSL, int&nbsp;liveTime,<a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#getDeviceInfo%28%29">getDeviceInfo</a>() int&nbsp;connTime, int&nbsp;searchTime)
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#getConnectionInfo%28%29">getConnectionInfo</a>()
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#getDeviceInfo%28%29">getDeviceInfo</a>()
+ * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.html#getPeerDevices%28%29">getPeerDevices</a>()
+ * </pre>
  * </ul>
  * <p>
  * A sample scenario of using RouterConnectionClient to interact with ConnectionService is as following:
@@ -73,6 +102,39 @@ public class RouterConnectionClient {
 	/**
 	 * ConnectionHandler exposes client side async messaging one-way AIDL api to allow ConnectionService call back to
      * notify events such as network attachment and detachment, device connection and disconnection. It implements IConnectionHandler.aidl.
+	 * <p>
+	 * It exposes the following groups of callback methods in
+     * accordance with ConnectionHandler AIDL api:
+     * <ul>
+     * <li>network detection:
+     * <pre>
+     * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onGetActiveNetwork%28com.xconns.peerdevicenet.NetInfo%29">onGetActiveNetwork</a>(<a href="../../../com/xconns/peerdevicenet/NetInfo.html" title="class in com.xconns.peerdevicenet">NetInfo</a>&nbsp;net)
+     * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onGetNetworks%28com.xconns.peerdevicenet.NetInfo[]%29">onGetNetworks</a>(<a href="../../../com/xconns/peerdevicenet/NetInfo.html" title="class in com.xconns.peerdevicenet">NetInfo</a>[]&nbsp;nets)
+     * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onNetworkActivated%28com.xconns.peerdevicenet.NetInfo%29">onNetworkActivated</a>(<a href="../../../com/xconns/peerdevicenet/NetInfo.html" title="class in com.xconns.peerdevicenet">NetInfo</a>&nbsp;net)
+     * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onNetworkConnected%28com.xconns.peerdevicenet.NetInfo%29">onNetworkConnected</a>(<a href="../../../com/xconns/peerdevicenet/NetInfo.html" title="class in com.xconns.peerdevicenet">NetInfo</a>&nbsp;net)
+     * void <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onNetworkDisconnected%28com.xconns.peerdevicenet.NetInfo%29">onNetworkDisconnected</a>(<a href="../../../com/xconns/peerdevicenet/NetInfo.html" title="class in com.xconns.peerdevicenet">NetInfo</a>&nbsp;net)
+     * </pre>
+     * <li>peer discovery:
+     * <pre>
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onSearchStart%28com.xconns.peerdevicenet.DeviceInfo%29">onSearchStart</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;groupLeader)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onSearchFoundDevice%28com.xconns.peerdevicenet.DeviceInfo,%20boolean%29">onSearchFoundDevice</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;device, boolean&nbsp;useSSL)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onSearchComplete%28%29">onSearchComplete</a>()
+     * </pre>
+     * <li>peer device connection:
+     * <pre>
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onConnected%28com.xconns.peerdevicenet.DeviceInfo%29">onConnected</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onConnecting%28com.xconns.peerdevicenet.DeviceInfo,%20byte[]%29">onConnecting</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;device, byte[]&nbsp;token)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onConnectionFailed%28com.xconns.peerdevicenet.DeviceInfo,%20int%29">onConnectionFailed</a>(<ahref="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;device, int&nbsp;rejectCode)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onDisconnected%28com.xconns.peerdevicenet.DeviceInfo%29">onDisconnected</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
+     * </pre>
+     * <li>info query:
+     * <pre>
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onSetConnectionInfo%28%29">onSetConnectionInfo</a>()
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onGetConnectionInfo%28java.lang.String,%20boolean,%20int,%20int,%20int%29">onGetConnectionInfo</a>(<a href="file:///home/dev/tools/adt-bundle-linux-x86_64-20140702/sdk/docs/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;devName, boolean&nbsp;useSSL, int&nbsp;liveTime, int&nbsp;connTime, int&nbsp;searchTime)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onGetDeviceInfo%28com.xconns.peerdevicenet.DeviceInfo%29">onGetDeviceInfo</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;device)
+     * <a href="../../../com/xconns/peerdevicenet/RouterConnectionClient.ConnectionHandler.html#onGetPeerDevices%28com.xconns.peerdevicenet.DeviceInfo[]%29">onGetPeerDevices</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>[]&nbsp;devices)
+     * </pre>
+     * </ul>
 	 */
 	public interface ConnectionHandler {
         /**

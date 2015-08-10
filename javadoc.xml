@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="." destdir="../router_doc" doctitle="PeerDeviceNet Java API" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" overview="/home/dev/Workspaces/Workspace/xconns/pdn20150625/overview-summary.html" source="1.7" sourcefiles="src/com/xconns/peerdevicenet/package-info.java,src/com/xconns/peerdevicenet/NetInfo.java,src/com/xconns/peerdevicenet/RouterGroupClient.java,src/com/xconns/peerdevicenet/DeviceInfo.java,src/com/xconns/peerdevicenet/Router.java,src/com/xconns/peerdevicenet/RouterConnectionClient.java" sourcepath="gen:src" splitindex="true" use="true" version="true">
+            <link href="file:/home/dev/Workspaces/Workspace/xconns/pdn20150625/router_doc/"/>
+        </javadoc>
+    </target>
+</project>

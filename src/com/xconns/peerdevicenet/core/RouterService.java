@@ -589,7 +589,7 @@ public class RouterService extends Service implements CoreAPI {
 
 	public void setConnectionInfo(int sessionId, String devName, boolean uSSL, int liveTime,
 			int connTime, int searchTime) {
-		Log.d(TAG, "setConnectionInfo: " + devName);
+		Log.d(TAG, "setConnectionInfo, deviceName: " + devName+", useSSL="+uSSL+", liveTime="+liveTime/1000+", connTime="+connTime/1000+", searchTime="+searchTime/1000);
 		boolean restart = false;
 		if (devName != null && !devName.equals(mMyDeviceInfo.name)) {
 			mMyDeviceInfo.name = devName;

@@ -1,15 +1,11 @@
 /**
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html;
-      charset=windows-1252">
-  </head>
   <body>
-    PeerDeviceNet enables connection and communication among mobile
+    PeerDeviceNet enables P2P, M2M connection and communication among mobile,IoT 
     devices (phones, tablets, etc.).
     <p></p>
-    At mobile devices, PeerDeviceNet runtime (Router) runs as background services
-    in a separate process. Currently it includes the following services:
+    At mobile devices, PeerDeviceNet runtime (Router) runs as android services
+    in a background process. Currently it includes the following services
     <ol>
       <li> ConnectionService, supports the following functions:
         <ol type="A">
@@ -47,10 +43,10 @@
     &lt;dependency&gt;<br>
     &lt;groupId&gt;com.xconns.peerdevicenet&lt;/groupId&gt;<br>
     &lt;artifactId&gt;peerdevicenet-api&lt;/artifactId&gt;<br>
-    &lt;version&gt;1.1.5&lt;/version&gt;<br>
+    &lt;version&gt;1.1.6&lt;/version&gt;<br>
     &lt;/dependency&gt;<br>
          <li>gradle<br>
-    com.xconns.peerdevicenet:peerdevicenet-api:1.1.5<br>
+    com.xconns.peerdevicenet:peerdevicenet-api:1.1.6<br>
       </ol>
       <li>Runtime: peerdevicenet-router.aar </li>
       <ol type="A">
@@ -58,11 +54,11 @@
     &lt;dependency&gt;<br>
     &lt;groupId&gt;com.xconns.peerdevicenet&lt;/groupId&gt;<br>
     &lt;artifactId&gt;peerdevicenet-router&lt;/artifactId&gt;<br>
-    &lt;version&gt;1.1.5&lt;/version&gt;<br>
+    &lt;version&gt;1.1.6&lt;/version&gt;<br>
     &lt;packaging&gt;aar&lt;/packaging&gt;<br>
     &lt;/dependency&gt;<br>
          <li>gradle<br>
-    com.xconns.peerdevicenet:peerdevicenet-router:1.1.5<br>
+    com.xconns.peerdevicenet:peerdevicenet-router:1.1.6<br>
       </ol>
     </ol>
     <p>

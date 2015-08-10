@@ -7,7 +7,7 @@ Router features:
        * supports peer discovery, peer device connection
        * supports group communication.
        * provides 3 layers of APIs(idl/messenger/intents) to access the runtime functions as documented in http://peerdevicenet.github.io.
-       * run as a service in a background process.
+       * run as services in a background process.
        * a pure generic kernel without enforcing any kind of connection strategy or GUI.
 
 Router is published as two jar/aar files at Maven Central. You can download the latest jars from http://search.maven.org/#search|ga|1|peerdevicenet, or grab via Maven or gradle as following:
@@ -38,8 +38,7 @@ Router can be used in 2 ways:
 
        * directly embed a Router instance into your app in one of the following two ways:
                   * download Router project and use it as your app's dependent library project.
-                  * if you are using android's new gradle build system, you can import it as 'com.xconns.peerdevicenet:peerdevicenet-router:
-'.
+                  * if you are using android's new gradle build system, you can import it as 'com.xconns.peerdevicenet:peerdevicenet-router:1.1.6'.
 
        * use router's API (peerdevicenet-api) to acces a Router instance embedded in other connector/manager app.
                   * download peerdevicenet-api.jar from the above MavenCentral addr and copy to project's "libs/" directory.
@@ -54,28 +53,32 @@ Two kinds of Apps built using Router:
 
         * Connected Apps:
                       * talk to Router GroupService thru APIs (peerdevicenet-api.jar)
-                      * send/recv app messages
+                      * group membership, send/recv app messages
 
-Sample Connectors:
+Sample Connectors/ConnectionManagers:
 
+	   * ConnSettings:
+	   				* provide Preference settings page to allow change parameters related to router services such as connection timout, search timeout, use SSL, etc..
+	   				* directly embed a router instance by including Router project as a library project or importing peerdevicenet-router.aar.
+	   				* other connectors and connected apps can use this app as a shared runtime to avoid embedding router directly (so install this app as first).
+	   				
        * Connector_wifi_intent:
-                      * use Wifi network thru external wireless router
+                      * use Wifi network thru external wireless router, or
                       * use WifiDirect network setup among a group of WifiDirect enabled devices
                       * use intenting api to perform network detection, peer discovery and device connection.
                       * directly embed a router instance by including Router project as a library project or importing peerdevicenet-router.aar.
 
        * Connector_wifi_aidl:
-                      * use Wifi network thru external wireless router
+                      * use Wifi network thru external wireless router, or
                       * use WifiDirect network setup among a group of WifiDirect enabled devices
                       * use AIDL api to perform network detection, peer discovery and device connection.
-                      * use router's APIs to access a Router instance embedded inside other app such as Connector_wifi_intent (so need to install Connector_wifi_intent before using this connector).
+                      * use router's APIs to access a Router instance embedded inside other app such as ConnSettings (so need to install ConnSettings app before using this connector).
 
        * Connector_wifidirect_hotspot:
                       * use WifiP2pManager to create a p2p group as a hotspot
                       * connect legacy wifi or wifi direct enabled devices thru this hotspot
                       * use aidl api to perform network detection, peer discovery and device connection.
-                      * directly embed a router service by including router as a library project.
-                      * use router's APIs to access a Router instance embedded inside other app such as Connector_wifi_intent (so need to install Connector_wifi_intent before using this connector).
+                      * use router's APIs to access a Router instance embedded inside other app such as ConnSettings (so need to install ConnSettings app before using this connector).
 
 Sample Connected Apps:
 
