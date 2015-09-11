@@ -33,6 +33,7 @@ import com.xconns.peerdevicenet.DeviceInfo;
 import com.xconns.peerdevicenet.NetInfo;
 import com.xconns.peerdevicenet.utils.Utils;
 import com.xconns.peerdevicenet.utils.Utils.IntfAddr;
+import com.xconns.peerdevicenet.utils.WifiConnector;
 
 public class WifiTransport implements Transport {
 	public final static String TAG = "WifiTransport";
@@ -43,6 +44,8 @@ public class WifiTransport implements Transport {
 
 	ConnectivityManager cm = null;
 	WifiManager mWifiManager = null;
+	
+	WifiConnector mWifiConnector = null;
 
 	boolean isWifiEnabled = false;
 	DiscoveryMulticastThread mScanThread = null;
@@ -71,6 +74,7 @@ public class WifiTransport implements Transport {
 																		// enabled
 																		// or
 																		// not
+		mWifiConnector = new WifiConnector(mWifiManager, handler);
 	}
 
 	public void onDestroy() {
@@ -113,12 +117,12 @@ public class WifiTransport implements Transport {
 				WifiManager.ACTION_PICK_WIFI_NETWORK));
 	}
 
-	public void createNetwork() {
-		// meaningful only for wifi-direct
+	public void connectNetwork(NetInfo netinfo) {
+		mWifiConnector.connect(netinfo);
 	}
 
-	public void removeNetwork() {
-		// meaningful only for wifi-direct
+	public void disconnectNetwork(NetInfo netinfo) {
+		mWifiConnector.disconnect(netinfo);
 	}
 
 	String getHotspotAddr(String addr) {

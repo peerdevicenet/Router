@@ -109,12 +109,12 @@ public class WifiHotspotTransport implements Transport {
 		routerService.startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
 	}
 
-	public void createNetwork() {
-		// meaningful only for wifi-direct
+	public void connectNetwork(NetInfo netinfo) {
+		// 
 	}
 
-	public void removeNetwork() {
-		// meaningful only for wifi-direct
+	public void disconnectNetwork(NetInfo netinfo) {
+		// 
 	}
 
 	public void startSearch(DeviceInfo myDevInfo, DeviceInfo grpLeader, int scanTimeout,

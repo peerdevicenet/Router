@@ -49,6 +49,10 @@ interface CoreAPI {
 	int getNextSessionId();
 
 	// net api
+	void connectNetwork(int sessionId, NetInfo net);
+	
+	void disconnectNetwork(int sessionId, NetInfo net);
+	
 	void getNetworks(int sessionId);
 
 	void getActiveNetwork(int sessionId);
@@ -101,14 +105,13 @@ interface ConnHandler extends Transport.SearchHandler {
 	void onNetworkConnected(NetInfo net);
 
 	void onNetworkDisconnected(NetInfo net);
+	
+	void onNetworkConnecting(NetInfo net);
+	
+	void onNetworkConnectionFailed(NetInfo net);
 
 	void onNetworkActivated(NetInfo net);
 	
-	void onSearchStart(DeviceInfo grpLeader);
-
-	void onSearchFoundDevice(DeviceInfo device, boolean useSSL);
-
-	void onSearchComplete();
 
 	void onConnecting(DeviceInfo device, byte[] token);
 
@@ -787,6 +790,34 @@ public class RouterService extends Service implements CoreAPI {
 			}
 		}
 
+		@Override
+		public void onNetworkConnecting(NetInfo net) {
+			String netType = NetInfo.NetTypeName(net.type);
+			Log.d(TAG, netType + "-" + net.name + ": connecting");
+			if (mConnHandlerTable.size() > 0) {
+				Iterator<ConnHandler> iter = mConnHandlerTable.values()
+						.iterator();
+				while (iter.hasNext()) {
+					Log.d(TAG, "send netConnecting to 1 local connMgrs");
+					iter.next().onNetworkConnecting(net);
+				}
+			}
+		}
+
+		@Override
+		public void onNetworkConnectionFailed(NetInfo net) {
+			String netType = NetInfo.NetTypeName(net.type);
+			Log.d(TAG, netType + "-" + net.name + ": connection failed");
+			if (mConnHandlerTable.size() > 0) {
+				Iterator<ConnHandler> iter = mConnHandlerTable.values()
+						.iterator();
+				while (iter.hasNext()) {
+					Log.d(TAG, "send netConnectionFailed to 1 local connMgrs");
+					iter.next().onNetworkConnectionFailed(net);
+				}
+			}
+		}
+
 	};
 	
 	public void onDeviceDisconnected(Connection conn) {
@@ -976,6 +1007,29 @@ public class RouterService extends Service implements CoreAPI {
 		synchronized (sessionLock) {
 			return ++sessionId;
 		}
+	}
+
+	@Override
+	public void connectNetwork(int sessionId, NetInfo net) {
+		Log.d(TAG, "connectNetwork");
+		if (net == null) {
+			return;
+		}
+		//
+		ConnHandler h = mConnHandlerTable.get(sessionId);
+		linkMgr.connectNetwork(net);
+		h.onNetworkConnecting(net);
+	}
+
+	@Override
+	public void disconnectNetwork(int sessionId, NetInfo net) {
+		Log.d(TAG, "disconnectNetwork");
+		if (net == null) {
+			return;
+		}
+		//
+		ConnHandler h = mConnHandlerTable.get(sessionId);
+		linkMgr.disconnectNetwork(net);
 	}
 
 }

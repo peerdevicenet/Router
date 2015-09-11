@@ -30,11 +30,16 @@ interface IRouterConnectionService {
 	oneway void stopSession(int sessionId);
 	
 	//------ network api ------
+	//connect to specified network
+	oneway void connectNetwork(int sessionId, in NetInfo net);
+	//disconnect from specified network
+	oneway void disconnectNetwork(int sessionId, in NetInfo net);
+	//choose specified network for PeerDeviceNet traffic
+	oneway void activateNetwork(int sessionId, in NetInfo net);
 	//get current connected networks
 	oneway void getNetworks(int sessionId);
 	//get current active network
 	oneway void getActiveNetwork(int sessionId);
-	oneway void activateNetwork(int sessionId, in NetInfo net);
 	
 	//peer device discovery/search
 	oneway void startPeerSearch(int sessionId, in DeviceInfo groupLeader, int timeout);

@@ -239,6 +239,30 @@ public class AidlConnAPIPeer implements Peer {
 			}			
 		}
 
+		@Override
+		public void onNetworkConnecting(NetInfo net) {
+			try {
+				Log.d(TAG, "onNetworkConnecting called");
+				handler.onNetworkConnecting(net);
+			} catch (RemoteException e) {
+				Log.e(TAG,
+						"failed to call IRouterConnectionHandler::onNetworkConnecting(): "
+								+ e.getMessage());
+			}		
+		}
+
+		@Override
+		public void onNetworkConnectionFailed(NetInfo net) {
+			try {
+				Log.d(TAG, "onNetworkConnectionFailed called");
+				handler.onNetworkActivated(net);
+			} catch (RemoteException e) {
+				Log.e(TAG,
+						"failed to call IRouterConnectionHandler::onNetworkConnectionFailed(): "
+								+ e.getMessage());
+			}
+		}
+
 	}
 
 	//
@@ -296,6 +320,19 @@ public class AidlConnAPIPeer implements Peer {
 		public void stopSession(int sessionId) throws RemoteException {
 			Log.d(TAG, "stopSession called");
 			router.unregisterConnHandler(sessionId);
+		}
+
+		@Override
+		public void connectNetwork(int sessionId, NetInfo net)
+				throws RemoteException {
+			Log.d(TAG, "connectNetwork called");
+			router.connectNetwork(sessionId, net);			
+		}
+		@Override
+		public void disconnectNetwork(int sessionId, NetInfo net)
+				throws RemoteException {
+			Log.d(TAG, "disconnectNetwork called");
+			router.disconnectNetwork(sessionId, net);			
 		}
 
 		@Override

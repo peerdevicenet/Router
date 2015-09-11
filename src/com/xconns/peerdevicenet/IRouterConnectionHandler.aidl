@@ -24,13 +24,16 @@ interface IRouterConnectionHandler {
 	oneway void onError(in String errInfo);
 	
 	//----------- network callbacks ---------
-	//get all connected networks
-	oneway void onGetNetworks(in NetInfo[] nets);
+	//network status events
 	oneway void onNetworkConnected(in NetInfo net);
 	oneway void onNetworkDisconnected(in NetInfo net);
+	oneway void onNetworkConnecting(in NetInfo net);
+	oneway void onNetworkConnectionFailed(in NetInfo net);
+	oneway void onNetworkActivated(in NetInfo net);
+	//get all connected networks
+	oneway void onGetNetworks(in NetInfo[] nets);
 	//get current active network
 	oneway void onGetActiveNetwork(in NetInfo net);
-	oneway void onNetworkActivated(in NetInfo net);
 	//search related
 	oneway void onSearchStart(in DeviceInfo groupLeader);
 	oneway void onSearchFoundDevice(in DeviceInfo device, boolean useSSL);

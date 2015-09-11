@@ -26,14 +26,15 @@ public interface Transport {
 	interface Handler {
 		void onError(int netType, String errInfo);
 		
-		//the following 3 methods are called from main GUI thread
 		void onTransportEnabled(int netType, boolean enabled);
 
-		//void onGroupCreated(NetInfo net);
 		void onNetworkConnected(NetInfo net);
 
-		//void onGroupRemoved();
 		void onNetworkDisconnected(NetInfo net);
+		
+		void onNetworkConnecting(NetInfo net);
+		
+		void onNetworkConnectionFailed(NetInfo net);
 	}
 	
 	interface SearchHandler {
@@ -60,11 +61,11 @@ public interface Transport {
 	NetInfo getNetworkInfo();  //get net info
 	IntfAddr getIntfAddr(); //return my addr at this network
 	
-	//config
+	// config
 	void configureNetwork();    //use android standard GUI to config
-	//the next 2 useful for wifi direct, empty for others
-	void createNetwork();
-	void removeNetwork();
+	// connect/disconnect specified network
+	void connectNetwork(NetInfo net);
+	void disconnectNetwork(NetInfo net);
 	
 	//scan for peers
 	void startSearch(DeviceInfo myInfo, DeviceInfo grpLeader, int searchTimeout, SearchHandler h);

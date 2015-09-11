@@ -170,6 +170,20 @@ public class RouterConnectionClient {
 		void onNetworkConnected(NetInfo net);
 
         /**
+         * Notify clients that network connection is in process.
+         *
+         * @param net info about connecting network.
+         */
+		void onNetworkConnecting(NetInfo net);
+
+        /**
+         * Notify clients that network connection attempt failed.
+         *
+         * @param net info about network.
+         */
+		void onNetworkConnectionFailed(NetInfo net);
+
+        /**
          * Notify clients that a network is disconnected.
          *
          * @param net info about disconnected network.
@@ -293,26 +307,47 @@ public class RouterConnectionClient {
 	}
 
 	private IRouterConnectionHandler mConnHandler = new IRouterConnectionHandler.Stub() {
+		@Override
 		public void onError(String errInfo) {
 			registeredHandler.onError(errInfo);
 		}
 
+		@Override
 		public void onGetNetworks(NetInfo[] nets) {
 			Log.d(TAG, "onGetNetworks callback");
 			registeredHandler.onGetNetworks(nets);
 		}
+		@Override
 		public void onGetActiveNetwork(NetInfo net) {
 			Log.d(TAG, "onGetActiveNetwork callback");
 			registeredHandler.onGetActiveNetwork(net);
 		}
+		@Override
 		public void onNetworkConnected(NetInfo net) {
 			Log.d(TAG, "onNetworkConnected callback");
 			registeredHandler.onNetworkConnected(net);
 		}
+		@Override
 		public void onNetworkDisconnected(NetInfo net) {
 			Log.d(TAG, "onNetworkDisconnected callback");
 			registeredHandler.onNetworkDisconnected(net);
 		}
+
+		@Override
+		public void onNetworkConnecting(NetInfo net) throws RemoteException {
+			// TODO Auto-generated method stub
+			Log.d(TAG, "onNetworkDisconnected callback");
+			registeredHandler.onNetworkConnecting(net);			
+		}
+
+		@Override
+		public void onNetworkConnectionFailed(NetInfo net)
+				throws RemoteException {
+			// TODO Auto-generated method stub
+			Log.d(TAG, "onNetworkDisconnected callback");
+			registeredHandler.onNetworkConnectionFailed(net);			
+		}
+		@Override
 		public void onNetworkActivated(NetInfo net) {
 			Log.d(TAG, "onNetworkActivated callback");
 			registeredHandler.onNetworkActivated(net);
@@ -326,31 +361,39 @@ public class RouterConnectionClient {
 			registeredHandler.onSearchStart(groupLeader);
 		}
 		
+		@Override
 		public void onSearchFoundDevice(DeviceInfo device, boolean useSSL) {
 			registeredHandler.onSearchFoundDevice(device, useSSL);
 		}
+		@Override
 		public void onSearchComplete() {
 			registeredHandler.onSearchComplete();
 		}
+		@Override
 		public void onConnecting(DeviceInfo device, byte[] token) {
 			registeredHandler.onConnecting(device, token);
 		}
+		@Override
 		public void onConnectionFailed(DeviceInfo device, int rejectCode) {
 			registeredHandler.onConnectionFailed(device, rejectCode);
 		}
 		
+		@Override
 		public void onConnected(DeviceInfo peerInfo) {
 			registeredHandler.onConnected(peerInfo);
 		}
 
+		@Override
 		public void onDisconnected(DeviceInfo peerInfo) {
 			registeredHandler.onDisconnected(peerInfo);
 		}
 
+		@Override
 		public void onGetDeviceInfo(DeviceInfo device) throws RemoteException {
 			registeredHandler.onGetDeviceInfo(device);
 		}
 
+		@Override
 		public void onGetPeerDevices(DeviceInfo[] devices)
 				throws RemoteException {
 			registeredHandler.onGetPeerDevices(devices);
@@ -484,6 +527,12 @@ public class RouterConnectionClient {
 						break;
 					case Router.MsgId.ACTIVATE_NETWORK:
 						mConnService.activateNetwork(sessionId, (NetInfo) m.obj);
+						break;
+					case Router.MsgId.CONNECT_NETWORK:
+						mConnService.connectNetwork(sessionId, (NetInfo) m.obj);
+						break;
+					case Router.MsgId.DISCONNECT_NETWORK:
+						mConnService.disconnectNetwork(sessionId, (NetInfo) m.obj);
 						break;
 					default:
 						break;
@@ -782,6 +831,52 @@ public class RouterConnectionClient {
 			mConnService.activateNetwork(sessionId, net);
 		} catch (RemoteException e) {
 			Log.e(TAG, "failed to activateNetwork: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
+		}
+	}
+
+    /**
+     * connect to the specified network.
+     *
+     * @param net info of the network to be activated.
+     */
+	public void connectNetwork(NetInfo net) {
+		Log.d(TAG, "connectNetwork bef wait for Conn service");
+		if (mConnService == null) {
+			Message m = Message.obtain();
+			m.what = Router.MsgId.CONNECT_NETWORK;
+			m.obj = net;
+			sentMsgBuf.add(m);
+			return;
+		}
+		try {
+			Log.d(TAG, "start connectNetwork()");
+			mConnService.connectNetwork(sessionId, net);
+		} catch (RemoteException e) {
+			Log.e(TAG, "failed to connectNetwork: " + e.getMessage());
+            registeredHandler.onError(e.getMessage());
+		}
+	}
+
+    /**
+     * disconnect from specified network.
+     *
+     * @param net info of the network to be activated.
+     */
+	public void disconnectNetwork(NetInfo net) {
+		Log.d(TAG, "disconnectNetwork bef wait for Conn service");
+		if (mConnService == null) {
+			Message m = Message.obtain();
+			m.what = Router.MsgId.DISCONNECT_NETWORK;
+			m.obj = net;
+			sentMsgBuf.add(m);
+			return;
+		}
+		try {
+			Log.d(TAG, "start disconnectNetwork()");
+			mConnService.disconnectNetwork(sessionId, net);
+		} catch (RemoteException e) {
+			Log.e(TAG, "failed to disconnectNetwork: " + e.getMessage());
             registeredHandler.onError(e.getMessage());
 		}
 	}

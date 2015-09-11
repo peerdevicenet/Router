@@ -200,17 +200,12 @@ public class TransportManager {
 		}
 	}
 
-	// the next 2 useful for wifi direct, empty for others
-	void createNetwork() {
-		if (actLink != null) {
-			actLink.createNetwork();
-		}
+	void connectNetwork(NetInfo netinfo) {
+		links[netinfo.type].connectNetwork(netinfo);
 	}
 
-	void removeNetwork() {
-		if (actLink != null) {
-			actLink.removeNetwork();
-		}
+	void disconnectNetwork(NetInfo netinfo) {
+		links[netinfo.type].disconnectNetwork(netinfo);
 	}
 
 	// scan for peers
