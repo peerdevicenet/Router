@@ -48,10 +48,10 @@ public class Router {
      * <li> events: ACTION_ROUTER_UP, ACTION_ROUTER_CLEAR, ACTION_ROUTER_DOWN
      * </ol>
      * <li> action names for starting Connector or ConnectionManagement apps which interact with ConnectionService:
-     * ACTION_CONNECTOR, ACTION_CONNECTION_MANAGEMENT
+     * ACTION_CONNECTOR, ACTION_CONNECTION_MANAGEMENT, ACTION_CONNECTION_SETTINGS
      * <li> action names for communicating with ConnectionService:
      * <ol type="A">
-     * <li> network detection: ACTION_GET_NETWORKS, ACTION_GET_ACTIVE_NETWORK, ACTION_ACTIVATE_NETWORK, ACTION_NETWORK_CONNECTED, ACTION_NETWORK_DISCONNECTED.
+     * <li> network detection, connection and disconnection: ACTION_CONNECT_NETWORK, ACTION_DISCONNECT_NETWORK, ACTION_GET_NETWORKS, ACTION_GET_ACTIVE_NETWORK, ACTION_ACTIVATE_NETWORK, ACTION_NETWORK_CONNECTING, ACTION_NETWORK_CONNECTED, ACTION_NETWORK_DISCONNECTED, ACTION_NETWORK_CONNECTION_FAILED.
      * <li> peer discovery: ACTION_START_SEARCH, ACTION_SEARCH_FOUND_DEVICE, ACTION_SEARCH_COMPLETE.
      * <li> peer device connection: ACTION_CONNECT, ACTION_DISCONNECT, ACTION_ACCEPT_CONNECTION, ACTION_DENY_CONNECTION, ACTION_CONNECTING, ACTION_CONNECTION_FAILED, ACTION_CONNECTED, ACTION_DISCONNECTED.
      * <li> info retrieval: ACTION_SET_CONNECTION_INFO, ACTION_GET_CONNECTION_INFO, ACTION_GET_DEVICE_INFO
@@ -133,6 +133,10 @@ public class Router {
          */
         public static final String ACTION_CONNECTION_MANAGEMENT = "com.xconns.peerdevicenet.CONNECTION_MANAGEMENT";
         /**
+         * intent action name to bring up external ConnectionSettings apps.
+         */
+        public static final String ACTION_CONNECTION_SETTINGS = "com.xconns.peerdevicenet.CONNECTION_SETTINGS";
+        /**
          * intent action name to bind to remote intent service
          */
         public static final String ACTION_REMOTE_INTENT_SERVICE = "com.xconns.peerdevicenet.RemoteIntentService";
@@ -179,6 +183,34 @@ public class Router {
         public static final String ACTION_ERROR = "com.xconns.peerdevicenet.ERROR";
 
         // ConnectionService intent actions
+        /**
+         * intent action name for connecting to a network
+         *
+         * <p>Reply Message Data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final String ACTION_CONNECT_NETWORK = "com.xconns.peerdevicenet.CONNECT_NETWORK";
+        /**
+         * intent action name for disconnecting a network
+         *
+         * <p>Reply Message Data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final String ACTION_DISCONNECT_NETWORK = "com.xconns.peerdevicenet.DISCONNECT_NETWORK";
         /**
          * intent action name for request and reply info of networks
          * currently attached to device.
@@ -255,6 +287,34 @@ public class Router {
          * </dl>
          */
         public static final String ACTION_NETWORK_DISCONNECTED = "com.xconns.peerdevicenet.NETWORK_DISCONNECTED";
+        /**
+         * intent action name to notify clients that is connecting to a network
+         *
+         * <p>Message data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final String ACTION_NETWORK_CONNECTING = "com.xconns.peerdevicenet.NETWORK_CONNECTING";
+        /**
+         * intent action name to notify client that a connect attempt to network failed
+         *
+         * <p>Message data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final String ACTION_NETWORK_CONNECTION_FAILED = "com.xconns.peerdevicenet.NETWORK_CONNECTION_FAILED";
         /**
          * intent action name for request to start a new peer search session.
          *
@@ -566,8 +626,8 @@ public class Router {
 	 * <ol>
 	 * <li>message ids for communicating with ConnectionService:
 	 * <ol type="A">
-	 * <li>network detection: GET_NETWORKS, GET_ACTIVE_NETWORK,
-	 * ACTIVATE_NETWORK, NETWORK_CONNECTED, NETWORK_DISCONNECTED.
+	 * <li>network detection, connection and disconnection: GET_NETWORKS, GET_ACTIVE_NETWORK,
+	 * ACTIVATE_NETWORK, CONNECT_NETWORK, DISCONNECT_NETWORK, NETWORK_CONNECTING, NETWORK_CONNECTED, NETWORK_DISCONNECTED, NETWORK_CONNECTION_FAILED.
 	 * <li>peer discovery: START_SEARCH, SEARCH_FOUND_DEVICE, SEARCH_COMPLETE.
 	 * <li>peer device connection: CONNECT, DISCONNECT, ACCEPT_CONNECTION,
 	 * DENY_CONNECTION, CONNECTING, CONNECTION_FAILED, CONNECTED, DISCONNECTED.
@@ -1022,6 +1082,63 @@ public class Router {
          * </dl>
          */
         public static final int NETWORK_DISCONNECTED = 10704;
+        /**
+         * message id to request connecting to a network
+         *
+         * <p>Message data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final int CONNECT_NETWORK = 10705;
+        /**
+         * message id to request disconnecting from a network
+         *
+         * <p>Message data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final int DISCONNECT_NETWORK = 10706;
+        /**
+         * message id to notify clients that a connection to network is in process
+         *
+         * <p>Message data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final int NETWORK_CONNECTING = 10707;
+        /**
+         * message id to notify clients that connection to a network failed
+         *
+         * <p>Message data is a bundle indexed by MsgKey:
+         * <dl>
+         * <dt>NET_TYPE integer</dt><dd>network type.</dd>
+         * <dt>NET_NAME string</dt><dd>network name.</dd>
+         * <dt>NET_PASS string</dt><dd>network passwd.</dd>
+         * <dt>NET_INFO binary</dt><dd>network info.</dd>
+         * <dt>NET_INTF_NAME string</dt><dd>network interface name.</dd>
+         * <dt>NET_ADDR string</dt><dd>network address.</dd>
+         * </dl>
+         */
+        public static final int NETWORK_CONNECTION_FAILED = 10708;
+
         //
         /**
          * message id to register a receiver messenger.

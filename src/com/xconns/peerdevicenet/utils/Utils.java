@@ -16,11 +16,9 @@
 
 package com.xconns.peerdevicenet.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import static android.os.Build.VERSION.SDK_INT;
+
 import java.io.File;
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -28,22 +26,20 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import static android.os.Build.VERSION.*;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
@@ -497,133 +493,87 @@ public class Utils {
 	// marshaling utils
 
 	public static byte[] marshallDeviceInfo(final DeviceInfo device) {
-		final Parcel parcel = Parcel.obtain();
-		byte[] data = null;
-		device.writeToParcel(parcel, 0);
-		data = parcel.marshall();
-		parcel.recycle();
-		return data;
+		try {
+			JSONArray json = new JSONArray();
+			json.put(0, device.name);
+			json.put(1, device.addr);
+			json.put(2, device.port);
+			return json.toString().getBytes();
+		} catch(JSONException je) {
+			Log.e(TAG, je.toString());
+			return null;
+		}
 	}
 
 	public static DeviceInfo unmarshallDeviceInfo(byte[] data, int len) {
-		DeviceInfo device = null;
-		final Parcel parcel = Parcel.obtain();
-		parcel.unmarshall(data, 0, len);
-		parcel.setDataPosition(0);
-		device = new DeviceInfo(parcel);
-		parcel.recycle();
-		return device;
+		try {
+			DeviceInfo device = new DeviceInfo();
+			JSONArray json = new JSONArray(new String(data));
+			device.name = json.getString(0);
+			device.addr = json.getString(1);
+			device.port = json.getString(2);
+			return device;
+		} catch(JSONException je) {
+			Log.e(TAG, je.toString());
+			return null;
+		}
 	}
 
 
 	public static byte[] marshallDeviceInfoSSL(final DeviceInfo device, final boolean ssl) {
-		final Parcel parcel = Parcel.obtain();
-		byte[] data = null;
-		parcel.writeByte((byte)(ssl?1:0));
-		device.writeToParcel(parcel, 0);
-		data = parcel.marshall();
-		parcel.recycle();
-		return data;
+		try {
+			JSONArray json = new JSONArray();
+			json.put(0, device.name);
+			json.put(1, device.addr);
+			json.put(2, device.port);
+			json.put(3, ssl);
+			return json.toString().getBytes();
+		} catch(JSONException je) {
+			Log.e(TAG, je.toString());
+			return null;
+		}
+		
 	}
 
 	public static Pair<DeviceInfo, Boolean> unmarshallDeviceInfoSSL(byte[] data, int len) {
-		DeviceInfo device = null;
-		final Parcel parcel = Parcel.obtain();
-		parcel.unmarshall(data, 0, len);
-		parcel.setDataPosition(0);
-		boolean useSSL = parcel.readByte() == 1;
-		device = new DeviceInfo(parcel);
-		parcel.recycle();
-		return new Pair<DeviceInfo, Boolean>(device, useSSL);
-	}
-
-	public static byte[] marshallIntent(final Intent intent) {
-		final Parcel parcel = Parcel.obtain();
-		byte[] data = null;
-		intent.writeToParcel(parcel, 0);
-		data = parcel.marshall();
-		parcel.recycle();
-		return data;
-	}
-
-	public static Intent unmarshallIntent(byte[] data, int len) {
-		final Parcel parcel = Parcel.obtain();
-		parcel.unmarshall(data, 0, len);
-		parcel.setDataPosition(0);
-		/*
-		 * Intent intent = new Intent(); intent.readFromParcel(parcel);
-		 */
-		Intent intent = (Intent) parcel.readParcelable(Intent.class
-				.getClassLoader());
-		parcel.recycle();
-		return intent;
-	}
-
-	public static byte[] marshallBundle(final Bundle bundle) {
-		final Parcel parcel = Parcel.obtain();
-		byte[] data = null;
-		parcel.writeBundle(bundle);
-		data = parcel.marshall();
-		parcel.recycle();
-		return data;
-	}
-
-	public static Bundle unmarshallBundle(byte[] data, int len) {
-		Bundle bundle = null;
-		final Parcel parcel = Parcel.obtain();
-		parcel.unmarshall(data, 0, len);
-		parcel.setDataPosition(0);
-		bundle = parcel.readBundle();
-		parcel.recycle();
-		return bundle;
-	}
-
-	@TargetApi(8)
-	public static String marshallBundleBase64(final Bundle bundle) {
-		String base64 = null;
-		final Parcel parcel = Parcel.obtain();
 		try {
-			parcel.writeBundle(bundle);
-			final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			final GZIPOutputStream zos = new GZIPOutputStream(
-					new BufferedOutputStream(bos));
-			zos.write(parcel.marshall());
-			zos.close();
-			base64 = Base64.encodeToString(bos.toByteArray(), 0);
-		} catch (IOException e) {
-			e.printStackTrace();
-			base64 = null;
-		} finally {
-			parcel.recycle();
+			DeviceInfo device = new DeviceInfo();
+			JSONArray json = new JSONArray(new String(data));
+			device.name = json.getString(0);
+			device.addr = json.getString(1);
+			device.port = json.getString(2);
+			boolean useSSL = json.getBoolean(3);
+			return new Pair<DeviceInfo,Boolean>(device,useSSL);
+		} catch(JSONException je) {
+			Log.e(TAG, je.toString());
+			return null;
 		}
-		return base64;
+		
+	}
+	
+	public static byte[] marshallGrpMsgHdr(String groupId, int msgId) {
+		try {
+			JSONArray json = new JSONArray();
+			json.put(0, groupId);
+			json.put(1, msgId);
+			return json.toString().getBytes();
+		}  catch(JSONException je) {
+			Log.e(TAG, je.toString());
+			return null;
+		}
 	}
 
-	@TargetApi(8)
-	public static Bundle unmarshallBundleBase64(final String base64) {
-		Bundle bundle = null;
-		final Parcel parcel = Parcel.obtain();
+	public static Bundle unmarshallGrpMsgHdr(byte[] data, int len) {
 		try {
-			final ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-			final byte[] buffer = new byte[1024];
-			final GZIPInputStream zis = new GZIPInputStream(
-					new ByteArrayInputStream(Base64.decode(base64, 0)));
-			int len = 0;
-			while ((len = zis.read(buffer)) != -1) {
-				byteBuffer.write(buffer, 0, len);
-			}
-			zis.close();
-			parcel.unmarshall(byteBuffer.toByteArray(), 0, byteBuffer.size());
-			parcel.setDataPosition(0);
-			bundle = parcel.readBundle();
-		} catch (IOException e) {
-			e.printStackTrace();
-			bundle = null;
-		} finally {
-			parcel.recycle();
+			Bundle b = new Bundle();
+			JSONArray json = new JSONArray(new String(data));
+			b.putString(Router.MsgKey.GROUP_ID, json.getString(0));
+			b.putInt(Router.MsgKey.MSG_ID, json.getInt(1));
+			return b;
+		} catch(JSONException je) {
+			Log.e(TAG, je.toString());
+			return null;
 		}
-
-		return bundle;
 	}
 
 }

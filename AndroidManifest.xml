@@ -18,8 +18,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xconns.peerdevicenet.router"
-    android:versionCode="44"
-    android:versionName="1.1.2" >
+    android:versionCode="45"
+    android:versionName="1.1.3" >
 
     <uses-sdk
         android:minSdkVersion="8"

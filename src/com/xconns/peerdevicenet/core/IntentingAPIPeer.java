@@ -119,11 +119,15 @@ public class IntentingAPIPeer implements Peer {
 				addr = data.getString(Router.MsgKey.PEER_ADDR);
 				port = data.getString(Router.MsgKey.PEER_PORT);
 				groupId = data.getString(Router.MsgKey.GROUP_ID);
+				byte[] msgData = data.getByteArray(Router.MsgKey.MSG_DATA);
+				/*
                 DeviceInfo targetDevice = null;
                 if (addr!=null&&addr.length()>0&&port!=null&port.length()>0) {
                     targetDevice = new DeviceInfo(name, addr, port);
                 }
 				router.sendMsg(groupId, targetDevice, msg.getData());
+				*/
+				router.sendMsg(groupId, addr, Router.MsgId.SEND_MSG, msgData);
 				// now for testing, just bounce back
 				// recvedMsg("sent: " + msg.getData().getString(MSG_DATA));
 				break;
@@ -167,6 +171,32 @@ public class IntentingAPIPeer implements Peer {
 				addr = data.getString(Router.MsgKey.NET_ADDR);
 				boolean mcast = data.getBoolean(Router.MsgKey.NET_INTF_MCAST);
 				router.activateNetwork(sessionId, new NetInfo(type, name, encrypt, pass, hidden, info, intfName, addr, mcast));
+				break;
+			case MsgId.CONNECT_NETWORK:
+				data = msg.getData();
+				type = data.getInt(Router.MsgKey.NET_TYPE);
+				name = data.getString(Router.MsgKey.NET_NAME);
+				encrypt = data.getInt(Router.MsgKey.NET_ENCRYPT);
+				pass = data.getString(Router.MsgKey.NET_PASS);
+				hidden = data.getBoolean(Router.MsgKey.NET_HIDDEN);
+				info = data.getByteArray(Router.MsgKey.NET_INFO);
+				intfName = data.getString(Router.MsgKey.NET_INTF_NAME);
+				addr = data.getString(Router.MsgKey.NET_ADDR);
+				mcast = data.getBoolean(Router.MsgKey.NET_INTF_MCAST);
+				router.connectNetwork(sessionId, new NetInfo(type, name, encrypt, pass, hidden, info, intfName, addr, mcast));
+				break;
+			case MsgId.DISCONNECT_NETWORK:
+				data = msg.getData();
+				type = data.getInt(Router.MsgKey.NET_TYPE);
+				name = data.getString(Router.MsgKey.NET_NAME);
+				encrypt = data.getInt(Router.MsgKey.NET_ENCRYPT);
+				pass = data.getString(Router.MsgKey.NET_PASS);
+				hidden = data.getBoolean(Router.MsgKey.NET_HIDDEN);
+				info = data.getByteArray(Router.MsgKey.NET_INFO);
+				intfName = data.getString(Router.MsgKey.NET_INTF_NAME);
+				addr = data.getString(Router.MsgKey.NET_ADDR);
+				mcast = data.getBoolean(Router.MsgKey.NET_INTF_MCAST);
+				router.disconnectNetwork(sessionId, new NetInfo(type, name, encrypt, pass, hidden, info, intfName, addr, mcast));
 				break;
 
 			
@@ -328,6 +358,22 @@ public class IntentingAPIPeer implements Peer {
 			i.putExtra(Router.MsgKey.SEARCH_TIMEOUT, searchTime);
 			i.putExtra(Router.MsgKey.USE_SSL, useSSL);
 			context.sendBroadcast(i);	
+		}
+
+		@Override
+		public void onNetworkConnecting(NetInfo net) {
+			// TODO Auto-generated method stub
+			Intent i = new Intent(Router.Intent.ACTION_NETWORK_CONNECTING);
+			i.putExtras(Utils.net2Bundle(net));
+			context.sendBroadcast(i);				
+		}
+
+		@Override
+		public void onNetworkConnectionFailed(NetInfo net) {
+			// TODO Auto-generated method stub
+			Intent i = new Intent(Router.Intent.ACTION_NETWORK_CONNECTION_FAILED);
+			i.putExtras(Utils.net2Bundle(net));
+			context.sendBroadcast(i);				
 		}
 
 	};

@@ -9,7 +9,7 @@
     <ol>
       <li> ConnectionService, supports the following functions:
         <ol type="A">
-          <li>detect network attachments and detachments (wifi, wifi
+          <li>connect, disconnect networks, detect attachments and detachments (wifi, wifi
             direct, mobile hotspot). </li>
           <li>perform peer devices discovery </li>
           <li>handle device connections and disconnections.</li>

@@ -181,43 +181,51 @@ public class WifiDirectTransport implements Transport, ChannelListener {
 		// ctxt.startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
 	}
 
-	public void createNetwork() {
-		manager.createGroup(channel, new ActionListener() {
+	public void connectNetwork(NetInfo netinfo) {
+		if (!isWifiDirectEnabled) {
+			handler.onError(NetInfo.WiFiDirect, "Wifi Direct is not enabled");
+		} else {
+			manager.createGroup(channel, new ActionListener() {
 
-			@Override
-			public void onFailure(int reason) {
-				// TODO Auto-generated method stub
-				handler.onError(NetInfo.WiFiDirect,
-						"failed to create group, error code: " + reason);
-				Log.d(TAG, "failed to create group, error code: " + reason);
-			}
+				@Override
+				public void onFailure(int reason) {
+					// TODO Auto-generated method stub
+					handler.onError(NetInfo.WiFiDirect,
+							"failed to create group, error code: " + reason);
+					Log.d(TAG, "failed to create group, error code: " + reason);
+				}
 
-			@Override
-			public void onSuccess() {
-				// TODO Auto-generated method stub
-			}
+				@Override
+				public void onSuccess() {
+					// TODO Auto-generated method stub
+				}
 
-		});
+			});
+		}
 	}
 
-	public void removeNetwork() {
-		manager.removeGroup(channel, new ActionListener() {
+	public void disconnectNetwork(NetInfo netinfo) {
+		if (!isWifiDirectEnabled) {
+			handler.onError(NetInfo.WiFiDirect, "Wifi Direct is not enabled");
+		} else {
+			manager.removeGroup(channel, new ActionListener() {
 
-			@Override
-			public void onFailure(int reason) {
-				// TODO Auto-generated method stub
-				handler.onError(NetInfo.WiFiDirect,
-						"failed to remove group, error code: " + reason);
-				Log.d(TAG, "failed to remove group, error code: " + reason);
-			}
+				@Override
+				public void onFailure(int reason) {
+					// TODO Auto-generated method stub
+					handler.onError(NetInfo.WiFiDirect,
+							"failed to remove group, error code: " + reason);
+					Log.d(TAG, "failed to remove group, error code: " + reason);
+				}
 
-			@Override
-			public void onSuccess() {
-				// TODO Auto-generated method stub
+				@Override
+				public void onSuccess() {
+					// TODO Auto-generated method stub
 
-			}
+				}
 
-		});
+			});
+		}
 	}
 
 	// called by WifiDirect broadcaster

@@ -149,6 +149,7 @@ public class AidlGroupAPIPeer implements Peer {
 		}
 
 		public void send(String groupId, DeviceInfo dest, byte[] data) throws RemoteException {
+			/*
 			Bundle msg = new Bundle();
 			msg.putByteArray(Router.MsgKey.MSG_DATA, data);
 			if (groupId != null)
@@ -156,6 +157,8 @@ public class AidlGroupAPIPeer implements Peer {
 			if (dest != null)
 				msg.putString(Router.MsgKey.PEER_ADDR, dest.addr);
 			router.sendMsg(groupId, dest, msg);
+			*/
+			router.sendMsg(groupId, (dest==null)?null:dest.addr, Router.MsgId.SEND_MSG, data);
 		}
 
 		public void getPeerDevices(String groupId) throws RemoteException {

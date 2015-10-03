@@ -27,9 +27,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.xconns.peerdevicenet.DeviceInfo;
+import com.xconns.peerdevicenet.Router;
 import com.xconns.peerdevicenet.utils.Utils;
 
 public class TCPConnection extends Thread implements Connection {
@@ -302,8 +304,9 @@ public class TCPConnection extends Thread implements Connection {
 			if (mMyGroupInfo == null) {
 				mOutputStream.writeInt(0);
 			} else {
-				mOutputStream.writeInt(mMyGroupInfo.length());
-				mOutputStream.write(mMyGroupInfo.getBytes());
+				byte[] grpInfo = mMyGroupInfo.getBytes();
+				mOutputStream.writeInt(grpInfo.length);
+				mOutputStream.write(grpInfo);
 			}
 
 			// recv peer group info
@@ -344,6 +347,7 @@ public class TCPConnection extends Thread implements Connection {
 																	// secs
 
 		// Keep listening to the mInputStream while connected
+		Bundle pendingMsg = null;
 		while (true) {
 			try {
 				// Read from the mInputStream
@@ -358,7 +362,7 @@ public class TCPConnection extends Thread implements Connection {
 					sendHeartbeat(lastRecvTime, HB_RSP);
 					continue;
 				}
-				if (len <= 1024)
+				if (len <= 1024 && pendingMsg == null/*alloc a new buffer for send_msg data*/)
 					buffer = def_buffer;
 				else
 					buffer = new byte[len];
@@ -375,7 +379,23 @@ public class TCPConnection extends Thread implements Connection {
 				// forward recved data to local recver
 				if (bytes > 0) {
 					try {
-						recver.onRecvData(buffer, bytes, this);
+						Bundle b = null;
+						if (pendingMsg == null) {
+							b = Utils.unmarshallGrpMsgHdr(buffer, bytes);
+							int msgId = b.getInt(Router.MsgKey.MSG_ID);
+							if (msgId == Router.MsgId.SEND_MSG) {
+								// wait to read mesg binary data
+								pendingMsg = b;
+								b = null;
+							}
+						} else {
+							b = pendingMsg;
+							pendingMsg = null;
+							b.putByteArray(Router.MsgKey.MSG_DATA, buffer);
+						}
+						if (b != null) {
+							recver.onRecvData(b, this);
+						}
 					} catch (Exception ee) {
 						Log.e(TAG,
 								"recver.onRecvData() throws exception when recv data : ",
