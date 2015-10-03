@@ -1,6 +1,8 @@
 Router: A Runtime For Peer-Peer Communication Among Android Devices
 ===================================================================
 
+        --- move to http://github.com/xconns-com ---
+
 Router features:
 
        * supports network detection/conn/disconn (Wifi / Wifi Direct / Mobile hotspot)
