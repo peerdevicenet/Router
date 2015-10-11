@@ -691,7 +691,7 @@ public class Router {
 	 * For detailed tutorial on how to use messengers talk to GroupService and
 	 * send/receive messages to peers, please check out <a
 	 * href="http://github.com/peerdevicenet/sample_Chat">the github sample
-	 * project.</a> </ol>
+	 * project.</a>
 	 */
     public final static class MsgId {
         // connection msgs

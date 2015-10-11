@@ -50,7 +50,7 @@ import com.xconns.peerdevicenet.IRouterGroupService;
  * <ul>
  * <li>broadcast message to whole group or send message to a specific peer device
  * <pre>
- * <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.html#send(com.xconns.peerdevicenet.DeviceInfo,%20byte[])">send</a></strong>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;dest, byte[]&nbsp;msg)
+ * <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.html#send(com.xconns.peerdevicenet.DeviceInfo,%20byte[])">send</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html">DeviceInfo</a>&nbsp;dest, byte[]&nbsp;msg)
  * </pre>
  * <li>query existing peer devices in this group:
  * <pre>
@@ -95,18 +95,18 @@ public class RouterGroupClient {
 	 * <ul>
 	 * <li>Group membership change detection:
 	 * <pre>
-	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onPeerJoin(com.xconns.peerdevicenet.DeviceInfo)">onPeerJoin</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
-	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onPeerLeave(com.xconns.peerdevicenet.DeviceInfo)">onPeerLeave</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;peerInfo)
-	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onSelfJoin(com.xconns.peerdevicenet.DeviceInfo[])">onSelfJoin</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>[]&nbsp;peersInfo)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onPeerJoin(com.xconns.peerdevicenet.DeviceInfo)">onPeerJoin</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html">DeviceInfo</a>&nbsp;peerInfo)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onPeerLeave(com.xconns.peerdevicenet.DeviceInfo)">onPeerLeave</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html">DeviceInfo</a>&nbsp;peerInfo)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onSelfJoin(com.xconns.peerdevicenet.DeviceInfo[])">onSelfJoin</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html">DeviceInfo</a>[]&nbsp;peersInfo)
 	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onSelfLeave()">onSelfLeave</a>()
 	 * </pre>
 	 * <li>receive messages from group peer devices:
 	 * <pre>
-	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onReceive(com.xconns.peerdevicenet.DeviceInfo,%20byte[])">onReceive</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>&nbsp;src, byte[]&nbsp;msg)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onReceive(com.xconns.peerdevicenet.DeviceInfo,%20byte[])">onReceive</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html">DeviceInfo</a>&nbsp;src, byte[]&nbsp;msg)
 	 * </pre>
 	 * <li>info query:
 	 * <pre>
-	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onGetPeerDevices(com.xconns.peerdevicenet.DeviceInfo[])">onGetPeerDevices</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html" title="class in com.xconns.peerdevicenet">DeviceInfo</a>[]&nbsp;devices)
+	 * void <a href="../../../com/xconns/peerdevicenet/RouterGroupClient.GroupHandler.html#onGetPeerDevices(com.xconns.peerdevicenet.DeviceInfo[])">onGetPeerDevices</a>(<a href="../../../com/xconns/peerdevicenet/DeviceInfo.html">DeviceInfo</a>[]&nbsp;devices)
 	 * </pre>
 	 * </ul>
      */
