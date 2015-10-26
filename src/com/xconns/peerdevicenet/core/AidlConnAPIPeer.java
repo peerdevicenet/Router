@@ -255,7 +255,7 @@ public class AidlConnAPIPeer implements Peer {
 		public void onNetworkConnectionFailed(NetInfo net) {
 			try {
 				Log.d(TAG, "onNetworkConnectionFailed called");
-				handler.onNetworkActivated(net);
+				handler.onNetworkConnectionFailed(net);
 			} catch (RemoteException e) {
 				Log.e(TAG,
 						"failed to call IRouterConnectionHandler::onNetworkConnectionFailed(): "

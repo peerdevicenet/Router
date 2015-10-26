@@ -340,7 +340,7 @@ public class RouterConnectionClient {
 		@Override
 		public void onNetworkConnecting(NetInfo net) throws RemoteException {
 			// TODO Auto-generated method stub
-			Log.d(TAG, "onNetworkDisconnected callback");
+			Log.d(TAG, "onNetworkConnecting callback");
 			registeredHandler.onNetworkConnecting(net);			
 		}
 
@@ -348,7 +348,7 @@ public class RouterConnectionClient {
 		public void onNetworkConnectionFailed(NetInfo net)
 				throws RemoteException {
 			// TODO Auto-generated method stub
-			Log.d(TAG, "onNetworkDisconnected callback");
+			Log.d(TAG, "onNetworkConnectionFailed callback");
 			registeredHandler.onNetworkConnectionFailed(net);			
 		}
 		@Override

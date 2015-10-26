@@ -43,10 +43,10 @@
     &lt;dependency&gt;<br>
     &lt;groupId&gt;com.xconns.peerdevicenet&lt;/groupId&gt;<br>
     &lt;artifactId&gt;peerdevicenet-api&lt;/artifactId&gt;<br>
-    &lt;version&gt;1.1.6&lt;/version&gt;<br>
+    &lt;version&gt;1.1.8&lt;/version&gt;<br>
     &lt;/dependency&gt;<br>
          <li>gradle<br>
-    com.xconns.peerdevicenet:peerdevicenet-api:1.1.6<br>
+    com.xconns.peerdevicenet:peerdevicenet-api:1.1.8<br>
       </ol>
       <li>Runtime: peerdevicenet-router.aar </li>
       <ol type="A">
@@ -54,11 +54,11 @@
     &lt;dependency&gt;<br>
     &lt;groupId&gt;com.xconns.peerdevicenet&lt;/groupId&gt;<br>
     &lt;artifactId&gt;peerdevicenet-router&lt;/artifactId&gt;<br>
-    &lt;version&gt;1.1.6&lt;/version&gt;<br>
+    &lt;version&gt;1.1.8&lt;/version&gt;<br>
     &lt;packaging&gt;aar&lt;/packaging&gt;<br>
     &lt;/dependency&gt;<br>
          <li>gradle<br>
-    com.xconns.peerdevicenet:peerdevicenet-router:1.1.6<br>
+    com.xconns.peerdevicenet:peerdevicenet-router:1.1.8<br>
       </ol>
     </ol>
     <p>

@@ -119,11 +119,13 @@ public final class WifiConnector {
 						if (wifiManager.enableNetwork(ec.networkId, true)) {
 							Log.i(TAG, "Associating to existing network " + ec.SSID);
 							wifiManager.saveConfiguration();
-							return;
 						} else {
-							Log.w(TAG, "Failed to enable network " + ec.SSID);
+							String errMsg = "Failed to enable network " + ec.SSID;
+							Log.w(TAG, errMsg);
+							wifiData.info = errMsg.getBytes();
+							handler.onNetworkConnectionFailed(wifiData);
 						}
-
+						return;
 					}
 				}
 			}

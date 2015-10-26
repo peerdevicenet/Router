@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.xconns.peerdevicenet.DeviceInfo;
 import com.xconns.peerdevicenet.NetInfo;
@@ -35,6 +36,7 @@ public class TransportManager {
 		for (int i = 0; i < NetInfo.NET_TYPES; i++)
 			links[i] = null;
 	}
+	Transport.Handler handler;
 
 	RouterService context = null;
 	
@@ -42,6 +44,7 @@ public class TransportManager {
 
 	public TransportManager(RouterService c, Transport.Handler h) {
 		context = c;
+		handler = h;
 
 		if (isSupported(NetInfo.WiFiDirect)) {
 			links[NetInfo.WiFiDirect] = new WifiDirectTransport(c);
@@ -121,8 +124,6 @@ public class TransportManager {
 			return actLink.getNetworkInfo();
 		return null;
 	}
-	
-	
 
 	public int getNumNetworks() {
 		int num = 0;
@@ -201,11 +202,27 @@ public class TransportManager {
 	}
 
 	void connectNetwork(NetInfo netinfo) {
-		links[netinfo.type].connectNetwork(netinfo);
+		Transport link = links[netinfo.type];
+		if(link != null) {
+			link.connectNetwork(netinfo);
+		} else {
+			String errMsg = "ConnectNetwork failed, no network of type: "+ NetInfo.NetTypeName(netinfo.type);
+			Log.e(TAG, errMsg);
+			netinfo.info = errMsg.getBytes();
+			handler.onNetworkConnectionFailed(netinfo);
+		}
 	}
 
 	void disconnectNetwork(NetInfo netinfo) {
-		links[netinfo.type].disconnectNetwork(netinfo);
+		Transport link = links[netinfo.type];
+		if(link != null) {
+			link.disconnectNetwork(netinfo);
+		} else {
+			String errMsg = "DisconnectNetwork failed, no network of type: "+ NetInfo.NetTypeName(netinfo.type);
+			Log.e(TAG, errMsg);
+			netinfo.info = errMsg.getBytes();
+			handler.onNetworkConnectionFailed(netinfo);
+		}
 	}
 
 	// scan for peers

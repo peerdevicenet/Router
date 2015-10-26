@@ -181,18 +181,22 @@ public class WifiDirectTransport implements Transport, ChannelListener {
 		// ctxt.startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
 	}
 
-	public void connectNetwork(NetInfo netinfo) {
+	public void connectNetwork(NetInfo net) {
+		final NetInfo netinfo = net;
 		if (!isWifiDirectEnabled) {
-			handler.onError(NetInfo.WiFiDirect, "Wifi Direct is not enabled");
+			Log.w(TAG, "Wifi Direct is not enabled");
+			netinfo.info = "Wifi Direct is not enabled!".getBytes();
+			handler.onNetworkConnectionFailed(netinfo);
 		} else {
 			manager.createGroup(channel, new ActionListener() {
 
 				@Override
 				public void onFailure(int reason) {
 					// TODO Auto-generated method stub
-					handler.onError(NetInfo.WiFiDirect,
-							"failed to create group, error code: " + reason);
-					Log.d(TAG, "failed to create group, error code: " + reason);
+					String errMsg = "Failed to create Wifi Direct group, error code: " + reason;
+					Log.d(TAG, errMsg);
+					netinfo.info = errMsg.getBytes();
+					handler.onNetworkConnectionFailed(netinfo);
 				}
 
 				@Override
@@ -204,18 +208,21 @@ public class WifiDirectTransport implements Transport, ChannelListener {
 		}
 	}
 
-	public void disconnectNetwork(NetInfo netinfo) {
+	public void disconnectNetwork(NetInfo net) {
+		final NetInfo netinfo = net;
 		if (!isWifiDirectEnabled) {
-			handler.onError(NetInfo.WiFiDirect, "Wifi Direct is not enabled");
+			Log.w(TAG, "Wifi Direct is not enabled");
+			netinfo.info = "Wifi Direct is not enabled!".getBytes();
+			handler.onNetworkConnectionFailed(netinfo);
 		} else {
 			manager.removeGroup(channel, new ActionListener() {
 
 				@Override
 				public void onFailure(int reason) {
-					// TODO Auto-generated method stub
-					handler.onError(NetInfo.WiFiDirect,
-							"failed to remove group, error code: " + reason);
-					Log.d(TAG, "failed to remove group, error code: " + reason);
+					String errMsg = "Failed to remove Wifi Direct group, error code: " + reason;
+					Log.d(TAG, errMsg);
+					netinfo.info = errMsg.getBytes();
+					handler.onNetworkConnectionFailed(netinfo);
 				}
 
 				@Override
@@ -241,15 +248,16 @@ public class WifiDirectTransport implements Transport, ChannelListener {
 		// TODO Auto-generated method stub
 		// we will try once more
 		if (manager != null && !retryChannel) {
-			Log.d(TAG, "Channel lost. Trying again");
-			handler.onError(NetInfo.WiFiDirect, "Channel lost. Trying again");
+			Log.d(TAG, "Wifi Direct Channel lost. Trying again");
+			//handler.onError(NetInfo.WiFiDirect, "Wifi Direct Channel lost. Trying again");
 			reset(false);
 			retryChannel = true;
 			channel = manager
 					.initialize(context, context.getMainLooper(), this);
 		} else {
 			Log.d(TAG,
-					"Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.");
+					"Wifi Direct Severe Error: Channel is probably lost premanently. Try Disable/Re-Enable P2P.");
+			handler.onError(NetInfo.WiFiDirect, "Wifi Direct Channel lost. Trying again");
 		}
 	}
 

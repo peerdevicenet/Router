@@ -32,6 +32,7 @@ import android.net.wifi.WifiManager.WifiLock;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.xconns.peerdevicenet.DeviceInfo;
@@ -268,20 +269,27 @@ public class RouterService extends Service implements CoreAPI {
 		startService(startupSignal);
 
 		// add notification and start service at foreground
-		Notification notification = new Notification(R.drawable.router_icon,
+		/*Notification notification = new Notification(R.drawable.router_icon,
 				getText(R.string.router_notif_ticker),
-				System.currentTimeMillis());
+				System.currentTimeMillis());*/
+		// Instantiate a Builder object.
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+		builder.setContentTitle(getText(R.string.router_notif_title))
+		.setTicker(getText(R.string.router_notif_ticker))
+	    .setContentText(getText(R.string.router_notif_message))
+	    .setSmallIcon(R.drawable.router_icon);
+		//
 		Intent notificationIntent = new Intent(
 				Router.Intent.ACTION_CONNECTOR);
 		notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                                             Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-		notification.setLatestEventInfo(this,
-				getText(R.string.router_notif_title),
-				getText(R.string.router_notif_message), pendingIntent);
+
+		builder.setContentIntent(pendingIntent);
+
 		// using id of ticker text as notif id
-		startForeground(R.string.router_notif_ticker, notification);
+		startForeground(R.string.router_notif_ticker, builder.build());
 
 	}
 
@@ -1058,8 +1066,8 @@ public class RouterService extends Service implements CoreAPI {
 		}
 		//
 		ConnHandler h = mConnHandlerTable.get(sessionId);
-		linkMgr.connectNetwork(net);
 		h.onNetworkConnecting(net);
+		linkMgr.connectNetwork(net);
 	}
 
 	@Override
